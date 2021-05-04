@@ -46,13 +46,13 @@
 			"response": []
 		},
 		{
-			"name": "Create New Department",
+			"name": "Create New user",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"ndep\": 69, \n    \"localidade\": \"Polo II\", \n    \"nome\": \"Informatica\"\n}",
+					"raw": "{\n    \"username\": 69, \n    \"email\": \"Polo II\", \n    \"password\": \"Informatica\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -60,14 +60,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/departments/",
+					"raw": "http://localhost:8080/users/",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"departments",
+						"users",
 						""
 					]
 				}

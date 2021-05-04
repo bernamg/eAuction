@@ -119,7 +119,6 @@ INSERT INTO descontos VALUES (4, 350001, 550000);
 INSERT INTO descontos VALUES (5, 550001, 9999999);
 */
 
-
 CREATE TABLE auction (
 	artigo_ean	 BIGINT,
 	min_price	 FLOAT(8) NOT NULL,
@@ -138,7 +137,7 @@ CREATE TABLE bid (
 );
 
 CREATE TABLE users (
-	username VARCHAR(512),
+	username VARCHAR(512) UNIQUE NOT NULL,
 	email	 VARCHAR(512) UNIQUE NOT NULL,
 	password VARCHAR(512) NOT NULL,
 	PRIMARY KEY(username)

@@ -113,23 +113,23 @@ def get_department(ndep):
 ##
 
 
-@app.route("/departments/", methods=['POST'])
+@app.route("/users/", methods=['POST'])
 def add_departments():
-    logger.info("###              DEMO: POST /departments              ###");   
+    logger.info("###              DEMO: POST /users              ###");   
     payload = request.get_json()
 
     conn = db_connection()
     cur = conn.cursor()
 
-    logger.info("---- new department  ----")
+    logger.info("---- new user  ----")
     logger.debug(f'payload: {payload}')
 
     # parameterized queries, good for security and performance
     statement = """
-                  INSERT INTO dep (ndep, nome, local) 
+                  INSERT INTO users (username, email, password) 
                           VALUES ( %s,   %s ,   %s )"""
 
-    values = (payload["ndep"], payload["localidade"], payload["nome"])
+    values = (payload["username"], payload["email"], payload["password"])
 
     try:
         cur.execute(statement, values)
