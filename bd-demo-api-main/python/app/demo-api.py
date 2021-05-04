@@ -199,6 +199,7 @@ def update_departments():
 
 
 
+
 @app.route("/users/auctions", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
@@ -218,9 +219,6 @@ def get_all_auctions():
 
     conn.close()
     return jsonify(payload)
-
-
-
 
 ##########################################################
 ## DATABASE ACCESS
