@@ -68,6 +68,27 @@
 			},
 			"response": []
 		},
+
+		{
+			"name": "Obtain One Auction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users/1234567890123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"departments",
+						"1234567890123"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Create New user",
 			"request": {
@@ -97,6 +118,8 @@
 			},
 			"response": []
 		},
+
+		
 		{
 			"name": "Update Department",
 			"request": {

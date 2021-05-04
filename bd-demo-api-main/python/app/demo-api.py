@@ -220,6 +220,27 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
+@app.route("/users/<artigo_ean>", methods=['GET'])
+def get_oneAuction(artigo_ean):
+    logger.info("###              DEMO: GET /users/<artigo_ean>              ###");   
+
+    logger.debug(f'artigo_ean: {artigo_ean}')
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (artigo_ean,) )
+    rows = cur.fetchall()
+
+    row = rows[0]
+
+    logger.debug("---- selected auction  ----")
+    logger.debug(row)
+    content = {'artigo_ean': int(row[0]), 'description': row[1]}
+
+    conn.close ()
+    return jsonify(content)
+
 ##########################################################
 ## DATABASE ACCESS
 ##########################################################
