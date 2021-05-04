@@ -25,6 +25,28 @@
 			},
 			"response": []
 		},
+
+		{
+			"name": "Obtain All Auctions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users/auctions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"auctions"
+					]
+				}
+			},
+			"response": []
+		},
+
 		{
 			"name": "Obtain One Department",
 			"request": {

@@ -199,6 +199,25 @@ def update_departments():
 
 
 
+@app.route("/users/auctions", methods=['GET'], strict_slashes=True)
+def get_all_auctions():
+    logger.info("###              DEMO: GET /auctions              ###");   
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT artigo_ean, description FROM auction")
+    rows = cur.fetchall()
+
+    payload = []
+    logger.debug("---- users  ----")
+    for row in rows:
+        logger.debug(row)
+        content = {'artigo_ean': int(row[0]), 'description': row[1]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
 
 
 
