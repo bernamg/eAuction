@@ -144,6 +144,35 @@ def add_departments():
 
     return jsonify(result)
 
+##
+##      Demo GET
+##
+## Obtain all departments, in JSON format
+##
+## To use it, access: 
+## 
+##   http://localhost:8080/departments/
+##
+
+@app.route("/users/", methods=['GET'], strict_slashes=True)
+def get_all_departments():
+    logger.info("###              DEMO: GET /users              ###");   
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT username, email FROM users")
+    rows = cur.fetchall()
+
+    payload = []
+    logger.debug("---- users  ----")
+    for row in rows:
+        logger.debug(row)
+        content = {'username': (row[0]), 'email': row[1]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
 
 
 
