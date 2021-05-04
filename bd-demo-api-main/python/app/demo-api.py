@@ -47,21 +47,21 @@ def hello():
 ##   http://localhost:8080/departments/
 ##
 
-@app.route("/departments/", methods=['GET'], strict_slashes=True)
+@app.route("/users/", methods=['GET'], strict_slashes=True)
 def get_all_departments():
-    logger.info("###              DEMO: GET /departments              ###");   
+    logger.info("###              DEMO: GET /users              ###");   
 
     conn = db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT ndep, nome, local FROM dep")
+    cur.execute("SELECT username, email FROM users")
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- departments  ----")
+    logger.debug("---- users  ----")
     for row in rows:
         logger.debug(row)
-        content = {'ndep': int(row[0]), 'nome': row[1], 'localidade': row[2]}
+        content = {'username': (row[0]), 'email': row[1]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()

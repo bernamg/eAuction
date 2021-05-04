@@ -1,3 +1,4 @@
+
 /* 
 	# 
 	# Bases de Dados 2020/2021
@@ -20,6 +21,7 @@ drop table dep;
 
 /* Cria a tabela dos departamentos
  */
+ /*
 CREATE TABLE emp(
 	nemp	 numeric(4),
 	nome	 varchar(20)   NOT NULL,
@@ -32,10 +34,12 @@ CREATE TABLE emp(
 
 	PRIMARY KEY(nemp)
 );
+*/
 
 
 /* Cria a tabela dos empregados
  */
+ /*
 CREATE TABLE dep(
 	ndep	 numeric(2),
 	nome	 varchar(15) NOT NULL,
@@ -54,7 +58,7 @@ escalao NUMERIC(2) CONSTRAINT pk_esc_descontos PRIMARY KEY , salinf NUMERIC(7) C
 ALTER TABLE emp ADD CONSTRAINT emp_fk1 FOREIGN KEY (encar) REFERENCES emp(nemp);
 ALTER TABLE emp ADD CONSTRAINT emp_fk2 FOREIGN KEY (ndep) REFERENCES dep(ndep);
 
-
+*/
 
 
 
@@ -65,11 +69,12 @@ ALTER TABLE emp ADD CONSTRAINT emp_fk2 FOREIGN KEY (ndep) REFERENCES dep(ndep);
 
 /* Insere os departamentos
  */
+ /*
 INSERT INTO dep VALUES (10, 'Contabilidade', 'Condeixa');
 INSERT INTO dep VALUES (20, 'Investigacao',  'Mealhada');
 INSERT INTO dep VALUES (30, 'Vendas',        'Coimbra');
 INSERT INTO dep VALUES (40, 'Planeamento',   'Montemor');
-
+*/
 
 
 /* Insere os empregrados
@@ -82,6 +87,8 @@ INSERT INTO dep VALUES (40, 'Planeamento',   'Montemor');
  * sucessivamente.
  * 
  */
+ /*
+ 
 INSERT INTO emp VALUES(1839, 'Jorge Sampaio',  'Presidente'  ,NULL, '1984-02-11', 890000,  NULL, 10);
 
 INSERT INTO emp VALUES(1566, 'Augusto Reis',   'Encarregado' ,1839, '1985-02-13', 450975,  NULL, 20);
@@ -110,5 +117,72 @@ INSERT INTO descontos VALUES (2, 100000, 210000);
 INSERT INTO descontos VALUES (3, 210001, 350000);
 INSERT INTO descontos VALUES (4, 350001, 550000);
 INSERT INTO descontos VALUES (5, 550001, 9999999);
+*/
+
+
+CREATE TABLE auction (
+	artigo_ean	 BIGINT,
+	min_price	 FLOAT(8) NOT NULL,
+	end_date	 DATE NOT NULL,
+	description	 VARCHAR(512) NOT NULL,
+	actual_bid_price FLOAT(8),
+	PRIMARY KEY(artigo_ean)
+);
+
+CREATE TABLE bid (
+	username		 VARCHAR(512) NOT NULL,
+	bid_price		 FLOAT(8) NOT NULL,
+	auction_artigo_ean BIGINT,
+	users_username	 VARCHAR(512) NOT NULL,
+	PRIMARY KEY(bid_price,auction_artigo_ean)
+);
+
+CREATE TABLE users (
+	username VARCHAR(512),
+	email	 VARCHAR(512) UNIQUE NOT NULL,
+	password VARCHAR(512) NOT NULL,
+	PRIMARY KEY(username)
+);
+
+CREATE TABLE edition (
+	id_version	 VARCHAR(512),
+	auction_artigo_ean BIGINT,
+	PRIMARY KEY(id_version,auction_artigo_ean)
+);
+
+CREATE TABLE message (
+	text		 TEXT,
+	users_username	 VARCHAR(512),
+	auction_artigo_ean BIGINT,
+	PRIMARY KEY(users_username,auction_artigo_ean)
+);
+
+CREATE TABLE notification (
+	message_notif	 TEXT,
+	hour		 DATE,
+	users_username	 VARCHAR(512),
+	auction_artigo_ean BIGINT,
+	PRIMARY KEY(users_username,auction_artigo_ean)
+);
+
+CREATE TABLE users_auction (
+	users_username	 VARCHAR(512),
+	auction_artigo_ean BIGINT NOT NULL,
+	PRIMARY KEY(users_username)
+);
+
+ALTER TABLE bid ADD CONSTRAINT bid_fk1 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+ALTER TABLE bid ADD CONSTRAINT bid_fk2 FOREIGN KEY (users_username) REFERENCES users(username);
+ALTER TABLE edition ADD CONSTRAINT edition_fk1 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+ALTER TABLE message ADD CONSTRAINT message_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
+ALTER TABLE message ADD CONSTRAINT message_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+ALTER TABLE notification ADD CONSTRAINT notification_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
+ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
+ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+
+INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
+INSERT INTO users VALUES('bernas','bernas@student.uc','123');
+
 
 
