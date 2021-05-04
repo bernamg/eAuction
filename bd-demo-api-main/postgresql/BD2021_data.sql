@@ -182,6 +182,8 @@ ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_
 
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
+INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL);
+INSERT INTO users_auction VALUES('dvm18',1234567890123);
 
 
 
