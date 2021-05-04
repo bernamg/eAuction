@@ -210,7 +210,7 @@ def get_all_auctions():
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- users  ----")
+    logger.debug("---- auctions  ----")
     for row in rows:
         logger.debug(row)
         content = {'artigo_ean': int(row[0]), 'description': row[1]}
