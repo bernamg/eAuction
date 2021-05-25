@@ -273,33 +273,26 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
-@app.route("/users/<artigo_ean>", methods=['GET'])
-def get_oneAuction(artigo_ean):
-    logger.info("###              DEMO: GET /users/<artigo_ean>              ###");   
+@app.route("/users/<description>", methods=['GET'])
+def get_oneAuction(description):
+    logger.info("###              DEMO: GET /users/<description>              ###");   
 
-    logger.debug(f'artigo_ean: {artigo_ean}')
+    logger.debug(f'description: {description}')
 
     conn = db_connection()
     cur = conn.cursor()
 
-<<<<<<< HEAD
-    cur.execute("SELECT artigo_ean, description FROM auction where description LIKE %s", (description,) )
+    str = "SELECT artigo_ean, description FROM auction where description LIKE '%" + description + "%'"
+
+    cur.execute(str)
     if(cur.rowcount == 0):
         cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
-    #logger.debug(f'o que retorna {cur.rowcount}')  
-=======
-    cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (artigo_ean,) )
->>>>>>> 068a0741a905ef93c60a88582840764a77c763d5
     rows = cur.fetchall()
 
-    row = rows[0]
-
     logger.debug("---- selected auction  ----")
-    logger.debug(row)
-    content = {'artigo_ean': int(row[0]), 'description': row[1]}
 
     conn.close ()
-    return jsonify(content)
+    return jsonify(rows)
 
 ##########################################################
 ## DATABASE ACCESS
