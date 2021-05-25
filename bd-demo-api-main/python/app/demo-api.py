@@ -239,7 +239,7 @@ def get_oneAuction(description):
     conn = db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT artigo_ean, description FROM auction where description like %s", (description,) )
+    cur.execute("SELECT artigo_ean, description FROM auction where description LIKE %s", (description,) )
     if(cur.rowcount == 0):
         cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
     #logger.debug(f'o que retorna {cur.rowcount}')  
@@ -297,6 +297,3 @@ if __name__ == "__main__":
     
 
     app.run(host="0.0.0.0", debug=True, threaded=True)
-
-
-

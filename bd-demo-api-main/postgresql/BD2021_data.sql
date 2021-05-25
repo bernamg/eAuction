@@ -4,6 +4,7 @@ CREATE TABLE auction (
 	end_date	 DATE NOT NULL,
 	description	 VARCHAR(512) NOT NULL,
 	actual_bid_price FLOAT(8),
+	titulo		 VARCHAR(512) NOT NULL,
 	PRIMARY KEY(artigo_ean)
 );
 
@@ -61,13 +62,12 @@ ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_us
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 
 
+
+
+
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
-INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL);
-INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL);
+INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',NULL,'leilao do dvm');
+INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL,'leilao do berna');
 INSERT INTO users_auction VALUES('dvm18',1234567890123);
 INSERT INTO users_auction VALUES('bernas',1234567890124);
-
-
-
-
