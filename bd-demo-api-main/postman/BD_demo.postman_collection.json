@@ -150,7 +150,7 @@
 		},
 		
 		{
-			"name": "Update Department",
+			"name": "Login Auction",
 			"request": {
 				"method": "PUT",
 				"header": [],
