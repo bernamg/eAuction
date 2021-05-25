@@ -19,7 +19,7 @@ CREATE TABLE users (
 	username	 VARCHAR(512),
 	email	 VARCHAR(512) UNIQUE NOT NULL,
 	password	 VARCHAR(512) NOT NULL,
-	token_login INTEGER,
+	token_login VARCHAR(512),
 	PRIMARY KEY(username)
 );
 

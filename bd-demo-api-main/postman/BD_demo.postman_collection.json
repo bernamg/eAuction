@@ -127,7 +127,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"ndep\": 69,\n    \"localidade\": \"Figueira da Foz\"\n}",
+					"raw": "{\n    \"username\": \"bernas\",\n    \"password\": \"Figueira da Foz\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

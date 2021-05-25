@@ -18,6 +18,8 @@
  
 from flask import Flask, jsonify, request
 import logging, psycopg2, time
+import random 
+import string
 
 app = Flask(__name__) 
 
@@ -166,11 +168,11 @@ def update_departments():
     cur = conn.cursor()
 
 
-    #if content["ndep"] is None or content["nome"] is None :
-    #    return 'ndep and nome are required to update'
+    if content["username"] is None or content["password"] is None :
+        return 'username and password are required to update'
 
-    if "ndep" not in content or "localidade" not in content:
-        return 'ndep and localidade are required to update'
+    if "username" not in content or "password" not in content:
+        return 'username and password are required to update'
 
 
     logger.info("---- update department  ----")
@@ -178,16 +180,24 @@ def update_departments():
 
     # parameterized queries, good for security and performance
     statement ="""
-                UPDATE dep 
-                  SET local = %s
-                WHERE ndep = %s"""
+                select username, password from users
+                where password= %s and username = %s;"""
 
 
-    values = (content["localidade"], content["ndep"])
+    values = (content["password"], content["username"])
 
     try:
         res = cur.execute(statement, values)
-        result = f'Updated: {cur.rowcount}'
+        #result = f'Updated: {cur.rowcount}'
+        if(cur.rowcount == 0):
+            result = f'Erro: couldn´t login'
+        else:
+            letters = string.ascii_lowercase
+            result_str = ''.join(random.choice(letters) for i in range(5))
+            result = f'authToken: ' + result_str
+            statement = """ update users set token_login = %s  where username = %s """
+            values = (result_str,content["username"])
+            cur.execute(statement,values)
         cur.execute("commit")
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
