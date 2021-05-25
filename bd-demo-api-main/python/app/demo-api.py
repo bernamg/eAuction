@@ -202,7 +202,7 @@ def add_departments():
 ##
 
 @app.route("/departments/", methods=['PUT'])
-def update_departments():
+def login_action():
     logger.info("###              DEMO: PUT /departments              ###");   
     content = request.get_json()
 
@@ -272,16 +272,19 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
-@app.route("/users/<artigo_ean>", methods=['GET'])
-def get_oneAuction(artigo_ean):
+@app.route("/users/<description>", methods=['GET'])
+def get_oneAuction(description):
     logger.info("###              DEMO: GET /users/<artigo_ean>              ###");   
 
-    logger.debug(f'artigo_ean: {artigo_ean}')
+    logger.debug(f'artigo_ean: {description}')
 
     conn = db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (artigo_ean,) )
+    cur.execute("SELECT artigo_ean, description FROM auction where description like %s", (description,) )
+    if(cur.rowcount == 0):
+        cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
+    #logger.debug(f'o que retorna {cur.rowcount}')  
     rows = cur.fetchall()
 
     row = rows[0]
