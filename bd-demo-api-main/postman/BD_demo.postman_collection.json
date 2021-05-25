@@ -118,7 +118,36 @@
 			},
 			"response": []
 		},
-
+		
+		{
+			"name": "Create New Auction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"artigo_ean\": 1234, \n  \"min_price\": 1.00,  \n \"end-date\": \"25/04\",   \"description\": \"Produto de Informatica\", \n    \"titulo\": \"Leilao 1\" \n \"AuthToken\": \"ufyte\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/leilao/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"leilao",
+						""
+					]
+				}
+			},
+			"response": []
+		},
 		
 		{
 			"name": "Update Department",

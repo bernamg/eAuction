@@ -102,6 +102,48 @@ def get_department(ndep):
     conn.close ()
     return jsonify(content)
 
+## CREATE AUCTION
+
+@app.route("/leilao/", methods=['POST'])
+def create_Auction():
+    logger.info("###              DEMO: POST /leilao              ###");   
+    payload = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    logger.info("---- new Auction  ----")
+    logger.debug(f'payload: {payload}')
+
+    # parameterized queries, good for security and performance
+    statement = """
+                  INSERT INTO auction (artigo_ean, min_price, end_date, description, titulo) 
+                          VALUES ( %s,   %s ,   %s ,  %s, %s)"""
+
+    values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["AuthToken"],payload["titulo"],payload["AuthToken"])
+
+    try:
+        cur.execute(statement, values)
+     
+        cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
+        rows = cur.fetchall()
+        row = rows[0]
+        
+        statement = """ INSERT into users_auction (users_username, auction_artigo_ean)
+                            VALUES(%s , %s)"""
+        values = (row, payload["artigo_ean"])
+
+        cur.execute("commit")
+        result = 'leilaoID ' + artigo_ean
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+    finally:
+        if conn is not None:
+            conn.close()
+
+    return jsonify(result)
+
 
 
 ##
