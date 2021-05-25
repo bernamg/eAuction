@@ -102,10 +102,12 @@ def get_department(ndep):
     conn.close ()
     return jsonify(content)
 
-## CREATE AUCTION
+##########################################################
+## Create Auction
+##########################################################
 
-@app.route("/leilao/", methods=['POST'])
-def create_Auction():
+@app.route("/leilao/<AuthToken>", methods=['POST'])
+def create_Auction(AuthToken):
     logger.info("###              DEMO: POST /leilao              ###");   
     payload = request.get_json()
 
@@ -120,7 +122,7 @@ def create_Auction():
                   INSERT INTO auction (artigo_ean, min_price, end_date, description, titulo) 
                           VALUES ( %s,   %s ,   %s ,  %s, %s)"""
 
-    values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["AuthToken"],payload["titulo"],payload["AuthToken"])
+    values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["description"],payload["titulo"])
 
     try:
         cur.execute(statement, values)
@@ -128,13 +130,14 @@ def create_Auction():
         cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
         rows = cur.fetchall()
         row = rows[0]
-        
+
         statement = """ INSERT into users_auction (users_username, auction_artigo_ean)
                             VALUES(%s , %s)"""
         values = (row, payload["artigo_ean"])
-
+        cur.execute(statement, values)
+     
         cur.execute("commit")
-        result = 'leilaoID ' + artigo_ean
+        result = 'leilaoID ' + str(payload["artigo_ean"])
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         result = 'Failed!'
@@ -200,7 +203,6 @@ def add_departments():
 ##
 ##   curl -X PUT http://localhost:8080/departments/ -H "Content-Type: application/json" -d '{"ndep": 69, "localidade": "Porto"}'
 ##
-
 @app.route("/departments/", methods=['PUT'])
 def login_action():
     logger.info("###              DEMO: PUT /departments              ###");   
@@ -251,7 +253,6 @@ def login_action():
 
 
 
-
 @app.route("/users/auctions", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
@@ -272,19 +273,16 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
-@app.route("/users/<description>", methods=['GET'])
-def get_oneAuction(description):
+@app.route("/users/<artigo_ean>", methods=['GET'])
+def get_oneAuction(artigo_ean):
     logger.info("###              DEMO: GET /users/<artigo_ean>              ###");   
 
-    logger.debug(f'artigo_ean: {description}')
+    logger.debug(f'artigo_ean: {artigo_ean}')
 
     conn = db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT artigo_ean, description FROM auction where description like %s", (description,) )
-    if(cur.rowcount == 0):
-        cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
-    #logger.debug(f'o que retorna {cur.rowcount}')  
+    cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (artigo_ean,) )
     rows = cur.fetchall()
 
     row = rows[0]

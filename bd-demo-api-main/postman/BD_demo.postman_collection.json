@@ -126,7 +126,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"artigo_ean\": 1234, \n  \"min_price\": 1.00,  \n \"end-date\": \"25/04\",   \"description\": \"Produto de Informatica\", \n    \"titulo\": \"Leilao 1\" \n \"AuthToken\": \"ufyte\"\n}",
+					"raw": "{\n    \"artigo_ean\": 1234, \n  \"min_price\": 1.00,  \n \"end_date\": \"25/04\", \n  \"description\": \"Produto de Informatica\", \n    \"titulo\": \"Leilao 1\", \n}",
 					"options": {
 						"raw": {
 							"language": "json"
