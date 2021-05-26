@@ -151,8 +151,8 @@ def create_Auction(AuthToken):
 ## Edit Auction
 ##########################################################
 
-@app.route("/leilao/<artigo_ean>", methods=['PUT'])
-def update_auction(artigo_ean):
+@app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
+def update_auction(AuthToken,artigo_ean):
     logger.info("###              DEMO: PUT /leiao              ###");   
     content = request.get_json()
 
@@ -162,34 +162,88 @@ def update_auction(artigo_ean):
 
     #if content["ndep"] is None or content["nome"] is None :
     #    return 'ndep and nome are required to update'
+    if "description" in content and "titulo" in content:
+        if content["description"] is None or content["titulo"] is None :
+            logger.info("---- Update Auction [Campo Vazio]  ----")
+            return jsonify("Os campos não devem estar vazios")
 
-    if "titulo" not in content or "localidade" not in content:
-        return 'ndep and localidade are required to update'
+        logger.info("---- Update Auction [Titulo, Description]  ----")
+        logger.info(f'content: {content}')
+
+        statement ="""
+                UPDATE auction 
+                  SET Titulo = %s, description = %s
+                WHERE artigo_ean = %s"""
+
+        values = (content["titulo"], content["description"], artigo_ean)
+        try:
+            res = cur.execute(statement, values)
+            result = f'Updated: {cur.rowcount}'
+            cur.execute("commit")
+        except (Exception, psycopg2.DatabaseError) as error:
+            logger.error(error)
+            result = 'Failed!'
+        finally:
+            if conn is not None:
+                conn.close()
+        return jsonify(result)
+
+    if "description" not in content:
+        if content["titulo"] is None:
+            logger.info("---- Update Auction [Campo Vazio]  ----")
+            return jsonify("Os campos não devem estar vazios")
+
+        logger.info("---- Update Auction [Titulo]  ----")
+        logger.info(f'content: {content}')
+
+        statement ="""
+                UPDATE auction 
+                  SET Titulo = %s
+                WHERE artigo_ean = %s"""
+
+        values = (content["titulo"], artigo_ean)
+        try:
+            res = cur.execute(statement, values)
+            result = f'Updated: {cur.rowcount}'
+            cur.execute("commit")
+        except (Exception, psycopg2.DatabaseError) as error:
+            logger.error(error)
+            result = 'Failed!'
+        finally:
+            if conn is not None:
+                conn.close()
+        return jsonify(result)
+
+    if "titulo" not in content:
+        if content["description"] is None:
+            logger.info("---- Update Auction [Campo Vazio]  ----")
+            return jsonify("Os campos não devem estar vazios")
+
+        logger.info("---- Update Auction [Description]  ----")
+        logger.info(f'content: {content}')
+
+        statement ="""
+                UPDATE auction 
+                  SET description = %s
+                WHERE artigo_ean = %s"""
+
+        values = (content["description"], artigo_ean)
+        try:
+            res = cur.execute(statement, values)
+            result = f'Updated: {cur.rowcount}'
+            cur.execute("commit")
+        except (Exception, psycopg2.DatabaseError) as error:
+            logger.error(error)
+            result = 'Failed!'
+        finally:
+            if conn is not None:
+                conn.close()
+        return jsonify(result)
 
 
-    logger.info("---- update department  ----")
-    logger.info(f'content: {content}')
-
-    # parameterized queries, good for security and performance
-    statement ="""
-                UPDATE dep 
-                  SET local = %s
-                WHERE ndep = %s"""
+   
 
 
-    values = (content["localidade"], content["ndep"])
-
-    try:
-        res = cur.execute(statement, values)
-        result = f'Updated: {cur.rowcount}'
-        cur.execute("commit")
-    except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
-        result = 'Failed!'
-    finally:
-        if conn is not None:
-            conn.close()
-    return jsonify(result)
 
 
 @app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])

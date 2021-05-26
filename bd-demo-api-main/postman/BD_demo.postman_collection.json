@@ -178,6 +178,36 @@
 			},
 			"response": []
 		},
+		
+		{
+			"name": "Update Auction",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"titulo\": \"Titulo de Leilao\",\n    \"description\": \"Descricao de Leilao\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/departments/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"leilao",
+						""
+					]
+				}
+			},
+			"response": []
+		},
 
 		{
 			"name": "Details Auction",
