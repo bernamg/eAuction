@@ -163,7 +163,7 @@ def update_auction(artigo_ean):
     #if content["ndep"] is None or content["nome"] is None :
     #    return 'ndep and nome are required to update'
 
-    if "ndep" not in content or "localidade" not in content:
+    if "titulo" not in content or "localidade" not in content:
         return 'ndep and localidade are required to update'
 
 

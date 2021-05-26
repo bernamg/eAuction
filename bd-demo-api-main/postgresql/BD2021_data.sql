@@ -26,12 +26,15 @@ CREATE TABLE users (
 
 CREATE TABLE edition (
 	id_version	 VARCHAR(512),
+	titulo		 VARCHAR(512) NOT NULL,
+	description	 VARCHAR(512) NOT NULL,
 	auction_artigo_ean BIGINT,
 	PRIMARY KEY(id_version,auction_artigo_ean)
 );
 
 CREATE TABLE message (
 	text		 TEXT,
+	id		 INTEGER UNIQUE NOT NULL,
 	users_username	 VARCHAR(512),
 	auction_artigo_ean BIGINT,
 	PRIMARY KEY(users_username,auction_artigo_ean)
@@ -60,9 +63,6 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk1 FOREIGN KEY (users_user
 ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
-
-
-
 
 
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
