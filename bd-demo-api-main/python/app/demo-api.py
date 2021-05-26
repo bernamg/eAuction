@@ -147,50 +147,6 @@ def create_Auction(AuthToken):
 
     return jsonify(result)
 
-##########################################################
-## Edit Auction
-##########################################################
-
-@app.route("/leilao/<artigo_ean>", methods=['PUT'])
-def update_auction(artigo_ean):
-    logger.info("###              DEMO: PUT /leiao              ###");   
-    content = request.get_json()
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-
-    #if content["ndep"] is None or content["nome"] is None :
-    #    return 'ndep and nome are required to update'
-
-    if "ndep" not in content or "localidade" not in content:
-        return 'ndep and localidade are required to update'
-
-
-    logger.info("---- update department  ----")
-    logger.info(f'content: {content}')
-
-    # parameterized queries, good for security and performance
-    statement ="""
-                UPDATE dep 
-                  SET local = %s
-                WHERE ndep = %s"""
-
-
-    values = (content["localidade"], content["ndep"])
-
-    try:
-        res = cur.execute(statement, values)
-        result = f'Updated: {cur.rowcount}'
-        cur.execute("commit")
-    except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
-        result = 'Failed!'
-    finally:
-        if conn is not None:
-            conn.close()
-    return jsonify(result)
-
 
 
 ##
@@ -256,12 +212,13 @@ def login_action():
     cur = conn.cursor()
 
 
-    if content["username"] is None or content["password"] is None :
-        return 'username and password are required to update'
-
     if "username" not in content or "password" not in content:
         return 'username and password are required to update'
 
+    if content["username"] is None or content["password"] is None :
+        return 'username and password are required to update'
+
+    
 
     logger.info("---- update department  ----")
     logger.info(f'content: {content}')
@@ -339,6 +296,29 @@ def get_oneAuction(description):
 
     conn.close ()
     return jsonify(rows)
+
+@app.route("/users1/<artigo_ean>", methods=['GET'])
+def get_DetailsAuction(artigo_ean):
+    logger.info("###              DEMO: GET /users/<description>              ###");   
+
+    logger.debug(f'artigo_ean: {artigo_ean}')
+
+    conn = db_connection()
+    cur = conn.cursor()
+    paypload = []
+
+    try:
+        cur.execute("SELECT artigo_ean, min_price, end_date, description, actual_bid_price, titulo FROM auction where artigo_ean = %s", (artigo_ean,) )
+        rows = cur.fetchall()
+        row = rows[0]
+        content = {'artigo_ean': int(row[0]), 'min_price': row[1], 'end_date': row[2], 'description': row[3], 'actual_bid_price': row[4], 'titulo': row[5]}
+        paypload.append(content)
+    except(Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        rows = "0 results"
+
+    conn.close ()
+    return jsonify(paypload)
 
 ##########################################################
 ## DATABASE ACCESS

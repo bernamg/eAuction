@@ -34,6 +34,7 @@ CREATE TABLE message (
 	text		 TEXT,
 	users_username	 VARCHAR(512),
 	auction_artigo_ean BIGINT,
+	id SERIAL,
 	PRIMARY KEY(users_username,auction_artigo_ean)
 );
 
