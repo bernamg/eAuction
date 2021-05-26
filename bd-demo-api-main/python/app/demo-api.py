@@ -192,6 +192,53 @@ def update_auction(artigo_ean):
     return jsonify(result)
 
 
+@app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
+def write_message(AuthToken,artigo_ean):
+    logger.info("###              DEMO: PUT /message              ###");   
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+
+    #if content["ndep"] is None or content["nome"] is None :
+    #    return 'ndep and nome are required to update'
+
+    if "text" not in content:
+        return 'message are required to update'
+
+
+    logger.info("---- write message  ----")
+    logger.info(f'content: {content}')
+
+    try:
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Error'
+
+    # parameterized queries, good for security and performance
+    statement ="""
+                insert into message values(%s,DEFAULT,%s,%s) """
+
+
+    values = (content["text"],row[0],artigo_ean)
+
+    try:
+
+        res = cur.execute(statement, values)
+        result = f'Updated: {cur.rowcount}'
+        cur.execute("commit")
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+    finally:
+        if conn is not None:
+            conn.close()
+    return jsonify(result)
+
+
 
 ##
 ##      Demo POST
@@ -357,6 +404,12 @@ def get_DetailsAuction(artigo_ean):
         row = rows[0]
         content = {'artigo_ean': int(row[0]), 'min_price': row[1], 'end_date': row[2], 'description': row[3], 'actual_bid_price': row[4], 'titulo': row[5]}
         paypload.append(content)
+        cur.execute("select users_username, text from message where auction_artigo_ean = %s order by id", (artigo_ean,))
+        rows = cur.fetchall()
+        row = row[0]
+        for row in rows:
+            content = {'users_username':row[0],'text':row[1] }
+            paypload.append(content)
     except(Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         rows = "0 results"

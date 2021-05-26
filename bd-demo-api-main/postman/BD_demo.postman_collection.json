@@ -198,6 +198,37 @@
 				}
 			},
 			"response": []
+		},
+
+		{
+			"name": "Write Message",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"text\": \"Insert message\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080//leilao/<AuthToken>/<artigo_ean>",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"leilao",
+						"<AuthToken>",
+						"<artigo_ean>"
+					]
+				}
+			},
+			"response": []
 		}
 
 	]
