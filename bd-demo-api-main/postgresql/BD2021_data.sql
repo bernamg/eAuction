@@ -25,7 +25,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE edition (
-	id_version	 VARCHAR(512),
+	id_version	 SERIAL,
 	titulo		 VARCHAR(512) NOT NULL,
 	description	 VARCHAR(512) NOT NULL,
 	auction_artigo_ean BIGINT,
@@ -35,9 +35,8 @@ CREATE TABLE edition (
 CREATE TABLE message (
 	text		 TEXT,
 	id		 	SERIAL,
-	users_username	 VARCHAR(512),
-	auction_artigo_ean BIGINT,
-	PRIMARY KEY(users_username,auction_artigo_ean)
+	users_username	 VARCHAR(512) NOT NULL,
+	auction_artigo_ean BIGINT NOT NULL
 );
 
 CREATE TABLE notification (
@@ -71,3 +70,4 @@ INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como n
 INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL,'leilao do berna');
 INSERT INTO users_auction VALUES('dvm18',1234567890123);
 INSERT INTO users_auction VALUES('bernas',1234567890124);
+insert into message values('olasdsdsdd',DEFAULT,'dvm18',1234567890124);
