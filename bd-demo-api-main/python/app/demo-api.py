@@ -284,12 +284,14 @@ def get_oneAuction(description):
 
     str = "SELECT artigo_ean, description FROM auction where description LIKE '%" + description + "%'"
 
-    cur.execute(str)
-    if(cur.rowcount == 0):
-        cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
-    rows = cur.fetchall()
-
-    logger.debug("---- selected auction  ----")
+    try:
+        cur.execute(str)
+        if(cur.rowcount == 0):
+            cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
+        rows = cur.fetchall()
+    except(Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        rows = "0 results"
 
     conn.close ()
     return jsonify(rows)
