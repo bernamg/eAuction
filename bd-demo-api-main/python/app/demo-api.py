@@ -147,6 +147,7 @@ def create_Auction(AuthToken):
 
     return jsonify(result)
 
+<<<<<<< HEAD
 ##########################################################
 ## Edit Auction
 ##########################################################
@@ -191,6 +192,8 @@ def update_auction(artigo_ean):
             conn.close()
     return jsonify(result)
 
+=======
+>>>>>>> 2f26ed2aee70f8ab322600c7df72368983bf34f8
 
 
 ##
@@ -256,12 +259,13 @@ def login_action():
     cur = conn.cursor()
 
 
-    if content["username"] is None or content["password"] is None :
-        return 'username and password are required to update'
-
     if "username" not in content or "password" not in content:
         return 'username and password are required to update'
 
+    if content["username"] is None or content["password"] is None :
+        return 'username and password are required to update'
+
+    
 
     logger.info("---- update department  ----")
     logger.info(f'content: {content}')
@@ -328,15 +332,40 @@ def get_oneAuction(description):
 
     str = "SELECT artigo_ean, description FROM auction where description LIKE '%" + description + "%'"
 
-    cur.execute(str)
-    if(cur.rowcount == 0):
-        cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
-    rows = cur.fetchall()
-
-    logger.debug("---- selected auction  ----")
+    try:
+        cur.execute(str)
+        if(cur.rowcount == 0):
+            cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
+        rows = cur.fetchall()
+    except(Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        rows = "0 results"
 
     conn.close ()
     return jsonify(rows)
+
+@app.route("/users1/<artigo_ean>", methods=['GET'])
+def get_DetailsAuction(artigo_ean):
+    logger.info("###              DEMO: GET /users/<description>              ###");   
+
+    logger.debug(f'artigo_ean: {artigo_ean}')
+
+    conn = db_connection()
+    cur = conn.cursor()
+    paypload = []
+
+    try:
+        cur.execute("SELECT artigo_ean, min_price, end_date, description, actual_bid_price, titulo FROM auction where artigo_ean = %s", (artigo_ean,) )
+        rows = cur.fetchall()
+        row = rows[0]
+        content = {'artigo_ean': int(row[0]), 'min_price': row[1], 'end_date': row[2], 'description': row[3], 'actual_bid_price': row[4], 'titulo': row[5]}
+        paypload.append(content)
+    except(Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        rows = "0 results"
+
+    conn.close ()
+    return jsonify(paypload)
 
 ##########################################################
 ## DATABASE ACCESS

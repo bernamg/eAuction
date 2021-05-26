@@ -177,6 +177,28 @@
 				}
 			},
 			"response": []
+		},
+
+		{
+			"name": "Details Auction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users1/1234567890123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users1",
+						"1234567890123"
+					]
+				}
+			},
+			"response": []
 		}
+
 	]
 }
