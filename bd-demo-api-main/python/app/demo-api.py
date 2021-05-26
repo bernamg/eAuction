@@ -147,7 +147,6 @@ def create_Auction(AuthToken):
 
     return jsonify(result)
 
-<<<<<<< HEAD
 ##########################################################
 ## Edit Auction
 ##########################################################
@@ -192,8 +191,6 @@ def update_auction(artigo_ean):
             conn.close()
     return jsonify(result)
 
-=======
->>>>>>> 2f26ed2aee70f8ab322600c7df72368983bf34f8
 
 
 ##
