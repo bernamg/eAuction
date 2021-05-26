@@ -147,6 +147,50 @@ def create_Auction(AuthToken):
 
     return jsonify(result)
 
+##########################################################
+## Edit Auction
+##########################################################
+
+@app.route("/leilao/<artigo_ean>", methods=['PUT'])
+def update_auction(artigo_ean):
+    logger.info("###              DEMO: PUT /leiao              ###");   
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+
+    #if content["ndep"] is None or content["nome"] is None :
+    #    return 'ndep and nome are required to update'
+
+    if "ndep" not in content or "localidade" not in content:
+        return 'ndep and localidade are required to update'
+
+
+    logger.info("---- update department  ----")
+    logger.info(f'content: {content}')
+
+    # parameterized queries, good for security and performance
+    statement ="""
+                UPDATE dep 
+                  SET local = %s
+                WHERE ndep = %s"""
+
+
+    values = (content["localidade"], content["ndep"])
+
+    try:
+        res = cur.execute(statement, values)
+        result = f'Updated: {cur.rowcount}'
+        cur.execute("commit")
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+    finally:
+        if conn is not None:
+            conn.close()
+    return jsonify(result)
+
 
 
 ##
