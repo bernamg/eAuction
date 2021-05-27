@@ -9,7 +9,6 @@ CREATE TABLE auction (
 );
 
 CREATE TABLE bid (
-	username		 VARCHAR(512) NOT NULL,
 	bid_price		 FLOAT(8) NOT NULL,
 	auction_artigo_ean BIGINT,
 	users_username	 VARCHAR(512) NOT NULL,
@@ -70,4 +69,6 @@ INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como n
 INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL,'leilao do berna');
 INSERT INTO users_auction VALUES('dvm18',1234567890123);
 INSERT INTO users_auction VALUES('bernas',1234567890124);
+INSERT INTO edition VALUES(DEFAULT,'leilao do dvm','PlayStation 4 como nova com um comandos e o pes',1234567890123);
+INSERT INTO edition VALUES(DEFAULT,'leilao do berna','PlayStation 4 como nova com dois comandos e o fifa21',1234567890124);
 insert into message values('olasdsdsdd',DEFAULT,'dvm18',1234567890124);

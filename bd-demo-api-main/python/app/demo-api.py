@@ -81,27 +81,6 @@ def get_all_departments():
 ##   http://localhost:8080/departments/10
 ##
 
-@app.route("/departments/<ndep>", methods=['GET'])
-def get_department(ndep):
-    logger.info("###              DEMO: GET /departments/<ndep>              ###");   
-
-    logger.debug(f'ndep: {ndep}')
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT ndep, nome, local FROM dep where ndep = %s", (ndep,) )
-    rows = cur.fetchall()
-
-    row = rows[0]
-
-    logger.debug("---- selected department  ----")
-    logger.debug(row)
-    content = {'ndep': int(row[0]), 'nome': row[1], 'localidade': row[2]}
-
-    conn.close ()
-    return jsonify(content)
-
 ##########################################################
 ## Create Auction
 ##########################################################
@@ -135,8 +114,15 @@ def create_Auction(AuthToken):
                             VALUES(%s , %s)"""
         values = (row, payload["artigo_ean"])
         cur.execute(statement, values)
-     
         cur.execute("commit")
+
+        statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+
+        values = (payload["titulo"],payload["description"],payload["artigo_ean"])
+
+        cur.execute(statement, values)
+        cur.execute("commit")
+        logger.info("Added to editions")
         result = 'leilaoID ' + str(payload["artigo_ean"])
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
@@ -158,10 +144,21 @@ def update_auction(AuthToken,artigo_ean):
 
     conn = db_connection()
     cur = conn.cursor()
+        
+    try:
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return jsonify('Error Authentication Token')
 
-
-    #if content["ndep"] is None or content["nome"] is None :
-    #    return 'ndep and nome are required to update'
+    try:
+        cur.execute("select auction_artigo_ean from users_auction where users_username = %s and auction_artigo_ean = %s", (row,artigo_ean,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return jsonify('Error in artigo_ean')
+   
     if "description" in content and "titulo" in content:
         if content["description"] is None or content["titulo"] is None :
             logger.info("---- Update Auction [Campo Vazio]  ----")
@@ -180,6 +177,14 @@ def update_auction(AuthToken,artigo_ean):
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
+
+            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+            values = (content["titulo"],content["description"],artigo_ean)
+            
+            cur.execute(statement, values)
+            cur.execute("commit")
+            logger.info("Added to editions")
+
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
@@ -206,6 +211,16 @@ def update_auction(AuthToken,artigo_ean):
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
+
+            cur.execute("SELECT description FROM auction where artigo_ean = %s", (artigo_ean,) )
+            rows = cur.fetchall()
+            row = rows[0]
+            
+            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+            values = (content["titulo"],row,artigo_ean)
+            cur.execute(statement, values)
+            cur.execute("commit")
+            logger.info("Added to editions")
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
@@ -232,6 +247,17 @@ def update_auction(AuthToken,artigo_ean):
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
+
+            cur.execute("SELECT titulo FROM auction where artigo_ean = %s", (artigo_ean,) )
+            rows = cur.fetchall()
+            row = rows[0]
+            
+            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+            values = (row,content['description'],artigo_ean)
+            cur.execute(statement, values)
+            cur.execute("commit")
+            logger.info("Added to editions")
+
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
