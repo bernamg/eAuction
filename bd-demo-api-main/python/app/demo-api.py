@@ -497,6 +497,49 @@ def get_DetailsAuction(artigo_ean):
     conn.close ()
     return jsonify(paypload)
 
+
+@app.route("/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>", methods=['GET'])
+def bid_action(AuthToken,auction_artigo_ean,bid_price):
+    logger.info("###              DEMO: PUT /bid action              ###");   
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+    
+
+    logger.info("---- update bid  ----")
+    logger.info(f'auction_artigo_ean: {auction_artigo_ean}' + f'bid_price: {bid_price} '+ f'AuthToken: {AuthToken}')
+
+    # parameterized queries, good for security and performance
+
+    try:
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        #result = f'Updated: {cur.rowcount}'
+        if(cur.rowcount == 0):
+            result = f'there is no token'
+        else:
+            row = rows[0]
+            logger.info("---- username  ----" +row[0] )
+            statement = """ insert into bid values(%s,%s,%s) """
+            values = (bid_price,auction_artigo_ean,row[0])
+            cur.execute(statement,values)
+            #verificar valores das  bids
+            statement = """update auction set actual_bid_price = %s where artigo_ean = %s"""
+            values = (bid_price,auction_artigo_ean)
+            cur.execute(statement,values)
+            result = f'successfully bid'
+            cur.execute("commit")
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+        conn.rollback()
+    finally:
+        if conn is not None:
+            conn.close()
+    return jsonify(result)
+
+
 ##########################################################
 ## DATABASE ACCESS
 ##########################################################
