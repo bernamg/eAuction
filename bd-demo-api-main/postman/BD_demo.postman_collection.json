@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6991f472-7acb-45e0-a14e-c47ca0c38685",
+		"_postman_id": "10cc1144-f0b0-4b58-a593-53e0e8a145a7",
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -25,7 +25,6 @@
 			},
 			"response": []
 		},
-
 		{
 			"name": "Obtain All Auctions",
 			"request": {
@@ -46,8 +45,6 @@
 			},
 			"response": []
 		},
-
-
 		{
 			"name": "Obtain One Department",
 			"request": {
@@ -68,7 +65,6 @@
 			},
 			"response": []
 		},
-
 		{
 			"name": "Obtain One Auction",
 			"request": {
@@ -118,7 +114,6 @@
 			},
 			"response": []
 		},
-		
 		{
 			"name": "Create New Auction",
 			"request": {
@@ -148,7 +143,6 @@
 			},
 			"response": []
 		},
-		
 		{
 			"name": "Login Auction",
 			"request": {
@@ -178,7 +172,6 @@
 			},
 			"response": []
 		},
-		
 		{
 			"name": "Update Auction",
 			"request": {
@@ -194,7 +187,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/departments/",
+					"raw": "http://localhost:8080/leilao/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -208,7 +201,6 @@
 			},
 			"response": []
 		},
-
 		{
 			"name": "Details Auction",
 			"request": {
@@ -229,7 +221,6 @@
 			},
 			"response": []
 		},
-
 		{
 			"name": "Write Message",
 			"request": {
@@ -245,7 +236,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080//leilao/<AuthToken>/<artigo_ean>",
+					"raw": "http://localhost:8080/leilao/<AuthToken>/<artigo_ean>",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -259,7 +250,29 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Bid Action",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/dbproj/bid/gakwt/1234567890123/5,10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"dbproj",
+						"bid",
+						"gakwt",
+						"1234567890123",
+						"5,10"
+					]
+				}
+			},
+			"response": []
 		}
-
 	]
 }

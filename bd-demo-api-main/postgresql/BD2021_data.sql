@@ -9,7 +9,6 @@ CREATE TABLE auction (
 );
 
 CREATE TABLE bid (
-	username		 VARCHAR(512) NOT NULL,
 	bid_price		 FLOAT(8) NOT NULL,
 	auction_artigo_ean BIGINT,
 	users_username	 VARCHAR(512) NOT NULL,
