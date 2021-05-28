@@ -40,10 +40,9 @@ CREATE TABLE message (
 
 CREATE TABLE notification (
 	message_notif	 TEXT,
-	hour		 DATE,
-	users_username	 VARCHAR(512),
-	auction_artigo_ean BIGINT,
-	PRIMARY KEY(users_username,auction_artigo_ean)
+	hour		 		DateTime,
+	users_username	 VARCHAR(512) NOT NULL,
+	auction_artigo_ean BIGINT NOT NULL
 );
 
 CREATE TABLE users_auction (

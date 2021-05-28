@@ -20,7 +20,7 @@ from flask import Flask, jsonify, request
 import logging, psycopg2, time
 import random 
 import string
-
+import datetime
 app = Flask(__name__) 
 
 
@@ -36,38 +36,6 @@ def hello():
     <br/>
     """
 
-
-
-
-##
-##      Demo GET
-##
-## Obtain all departments, in JSON format
-##
-## To use it, access: 
-## 
-##   http://localhost:8080/departments/
-##
-
-@app.route("/users/", methods=['GET'], strict_slashes=True)
-def get_all_departments():
-    logger.info("###              DEMO: GET /users              ###");   
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT username, email FROM users")
-    rows = cur.fetchall()
-
-    payload = []
-    logger.debug("---- users  ----")
-    for row in rows:
-        logger.debug(row)
-        content = {'username': (row[0]), 'email': row[1]}
-        payload.append(content) # appending to the payload to be returned
-
-    conn.close()
-    return jsonify(payload)
 
 
 
@@ -267,9 +235,9 @@ def update_auction(AuthToken,artigo_ean):
         return jsonify(result)
 
 
-   
-
-
+##########################################################
+## Write Message
+########################################################## 
 
 
 @app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
@@ -511,7 +479,21 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
     logger.info(f'auction_artigo_ean: {auction_artigo_ean}' + f'bid_price: {bid_price} '+ f'AuthToken: {AuthToken}')
 
     # parameterized queries, good for security and performance
-
+    try:
+        #Notificar antigo maior bider
+            cur.execute(" select users_username, bid_price from bid where bid_price = (select max(bid_price) from bid) and auction_artigo_ean= %s", (auction_artigo_ean,))
+            rows = cur.fetchall()
+            row = rows[0]
+            logger.info(row);
+            datetime_object = datetime.datetime.now()
+            statement = """INSERT INTO notification VALUES('A sua bid de %s foi ultrapassada',%s,%s,%s);"""
+            values = (row[1],datetime_object,row[0],auction_artigo_ean)
+            cur.execute(statement,values)
+            logger.info("Data: " + str(datetime_object))
+            logger.info("Insert into notification")
+    except (Exception, psycopg2.DatabaseError) as error:
+            logger.error(error)
+            
     try:
         cur.execute("select username from users where token_login = %s", (AuthToken,))
         rows = cur.fetchall()
@@ -524,7 +506,8 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
             statement = """ insert into bid values(%s,%s,%s) """
             values = (bid_price,auction_artigo_ean,row[0])
             cur.execute(statement,values)
-            #verificar valores das  bids
+
+            #verificar valores das  bids uqbas
             statement = """update auction set actual_bid_price = %s where artigo_ean = %s"""
             values = (bid_price,auction_artigo_ean)
             cur.execute(statement,values)
