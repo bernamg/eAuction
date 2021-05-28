@@ -480,11 +480,12 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
 
     # parameterized queries, good for security and performance
     try:
-        #Notificar antigo maior bider
+        #Notificar antigo maior bider 
+        #VER TITULO
             cur.execute(" select users_username, bid_price from bid where bid_price = (select max(bid_price) from bid) and auction_artigo_ean= %s", (auction_artigo_ean,))
             rows = cur.fetchall()
             row = rows[0]
-            logger.info(row);
+            logger.info(row)
             datetime_object = datetime.datetime.now()
             statement = """INSERT INTO notification VALUES('A sua bid de %s foi ultrapassada',%s,%s,%s);"""
             values = (row[1],datetime_object,row[0],auction_artigo_ean)
@@ -493,7 +494,7 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
             logger.info("Insert into notification")
     except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
-            
+
     try:
         cur.execute("select username from users where token_login = %s", (AuthToken,))
         rows = cur.fetchall()

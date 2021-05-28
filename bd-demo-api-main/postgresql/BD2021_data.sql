@@ -40,7 +40,8 @@ CREATE TABLE message (
 
 CREATE TABLE notification (
 	message_notif	 TEXT,
-	hour		 		DateTime,
+	hour		 		TIMESTAMP,
+	lida		 BOOL,
 	users_username	 VARCHAR(512) NOT NULL,
 	auction_artigo_ean BIGINT NOT NULL
 );
