@@ -97,14 +97,6 @@ end;
 $$;
 
 
-
-create trigger trig1
-after insert on dep
-for each row
-execute procedure func_trig1();
-insert into dep values(50,'Sales','Coimbra');
-drop trigger trig1() on dep;
-
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
 INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',NULL,'leilao do dvm',TRUE);

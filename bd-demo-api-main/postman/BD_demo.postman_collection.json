@@ -1,10 +1,6 @@
 {
 	"info": {
-<<<<<<< HEAD
 		"_postman_id": "397e56ea-d52e-484b-b0cd-e4af6cd2b6bb",
-=======
-		"_postman_id": "89ed89eb-5301-4558-93a3-77d952d83e5b",
->>>>>>> 163c001b9ab93e425fcf38ac1f444f697be8aff5
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -279,30 +275,42 @@
 			"response": []
 		},
 		{
-<<<<<<< HEAD
 			"name": "Read Notifications",
-=======
-			"name": "Finish Auctions",
->>>>>>> 163c001b9ab93e425fcf38ac1f444f697be8aff5
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users/<AuthToken>",
+					"raw": "http://localhost:8080/users2/<AuthToken>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-<<<<<<< HEAD
 						"users",
 						"<AuthToken>"
-=======
+					]
+				}
+			},
+			"response": []
+		},
+
+		{
+			"name": "Finish Auctions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/dbproj/auction/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
 						"dbproj",
 						"auction",
 						"update"
->>>>>>> 163c001b9ab93e425fcf38ac1f444f697be8aff5
 					]
 				}
 			},
