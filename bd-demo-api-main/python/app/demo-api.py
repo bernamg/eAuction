@@ -66,8 +66,8 @@ def create_Auction(AuthToken):
 
     # parameterized queries, good for security and performance
     statement = """
-                  INSERT INTO auction (artigo_ean, min_price, end_date, description, titulo) 
-                          VALUES ( %s,   %s ,   %s ,  %s, %s)"""
+                  INSERT INTO auction (artigo_ean, min_price, end_date, description, titulo, stateOfAuction) 
+                          VALUES ( %s,   %s ,   %s ,  %s, %s, TRUE)"""
 
     values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["description"],payload["titulo"])
 
