@@ -392,7 +392,6 @@ def login_action():
     return jsonify(result)
 
 
-
 @app.route("/users/auctions", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
@@ -466,6 +465,39 @@ def get_DetailsAuction(artigo_ean):
     return jsonify(paypload)
 
 
+@app.route("/users2/<AuthToken>", methods=['GET'])
+def get_Notifications(AuthToken):
+    logger.info("###              DEMO: GET /users2/AuthToken              ###");   
+    conn = db_connection()
+    cur = conn.cursor()
+    payload = []
+
+    try:
+        cur.execute("select username from users where token_login = %s;",(AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+
+        cur.execute("select message_notif,hour from notification where users_username=%s order by hour desc",(row[0],))
+        rowsN = cur.fetchall()
+        for rown in rowsN:
+            logger.debug(rown)
+            content = {'Message': rown[0], 'Data': rown[1]}
+            payload.append(content) # appending to the payload to be returned
+        
+        #Eliminar notificacoes removeNotif
+    
+        logger.info("Before removeNotif")   
+        logger.info("Row[0] antes de remover "+ row[0])
+        cur.execute("CALL removeNotif(%s);",(row[0],))
+        cur.execute("commit")
+        logger.info("removeNotif Done")
+    except(Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        rows = "0 results notifications"
+
+    conn.close ()
+    return jsonify(payload)
+
 @app.route("/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>", methods=['GET'])
 def bid_action(AuthToken,auction_artigo_ean,bid_price):
     logger.info("###              DEMO: PUT /bid action              ###");   
@@ -482,16 +514,18 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
     try:
         #Notificar antigo maior bider 
         #VER TITULO
-            cur.execute(" select users_username, bid_price from bid where bid_price = (select max(bid_price) from bid) and auction_artigo_ean= %s", (auction_artigo_ean,))
-            rows = cur.fetchall()
-            row = rows[0]
-            logger.info(row)
-            datetime_object = datetime.datetime.now()
-            statement = """INSERT INTO notification VALUES('A sua bid de %s foi ultrapassada',%s,%s,%s);"""
-            values = (row[1],datetime_object,row[0],auction_artigo_ean)
-            cur.execute(statement,values)
-            logger.info("Data: " + str(datetime_object))
-            logger.info("Insert into notification")
+           # cur.execute(" select users_username, bid_price from bid where bid_price = (select max(bid_price) from bid) and auction_artigo_ean= %s", (auction_artigo_ean,))
+            #rows = cur.fetchall()
+            #row = rows[0]
+
+            #datetime_object = datetime.datetime.now()
+            #statement = """INSERT INTO notification VALUES('A sua bid de %s foi ultrapassada',%s,%s,%s);"""
+            #values = (row[1],datetime_object,row[0],auction_artigo_ean)
+            #cur.execute(statement,values)
+            logger.info("BEFORE BIDNOTIFICATION")
+            cur.execute("CALL bidNotification("+auction_artigo_ean+");")
+            logger.info("Notification Sended")
+
     except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
 

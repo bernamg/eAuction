@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "10cc1144-f0b0-4b58-a593-53e0e8a145a7",
+		"_postman_id": "397e56ea-d52e-484b-b0cd-e4af6cd2b6bb",
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -150,7 +150,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"bernas\",\n    \"password\": \"Figueira da Foz\"\n}",
+					"raw": "{\n    \"username\": \"dvm18\",\n    \"password\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -187,7 +187,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/<AuthToken>/<artigo_ean>",
+					"raw": "http://localhost:8080/leilao/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -269,6 +269,26 @@
 						"gakwt",
 						"1234567890123",
 						"5,10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Notifications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/users/<AuthToken>",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users",
+						"<AuthToken>"
 					]
 				}
 			},

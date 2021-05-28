@@ -63,6 +63,47 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_ar
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 
+create or replace procedure bidNotification(artigo_ean BIGINT)
+language plpgsql
+as $$
+declare
+    c1 cursor for 
+        select users_username, max(bid_price)
+        from bid
+        where auction_artigo_ean = (artigo_ean) 
+		group by users_username;
+begin 
+    for r in c1
+    loop
+		insert into notification values(CONCAT('A sua bid de ',r.max,' no LeilaoID: ',artigo_ean,' foi ultrapassada'),CURRENT_TIMESTAMP,FALSE,r.users_username,artigo_ean);
+    end loop;
+end;
+$$;
+
+create or replace procedure removeNotif(username VARCHAR)
+language plpgsql
+as $$
+declare
+    c1 cursor for 
+        select users_username
+        from notification
+        where users_username = (username);
+begin 
+    for r in c1
+    loop
+		DELETE FROM notification WHERE users_username=r.users_username;	
+    end loop;
+end;
+$$;
+
+
+
+create trigger trig1
+after insert on dep
+for each row
+execute procedure func_trig1();
+insert into dep values(50,'Sales','Coimbra');
+drop trigger trig1() on dep;
 
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
