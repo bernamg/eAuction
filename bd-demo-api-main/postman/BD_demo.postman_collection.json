@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "10cc1144-f0b0-4b58-a593-53e0e8a145a7",
+		"_postman_id": "89ed89eb-5301-4558-93a3-77d952d83e5b",
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -121,7 +121,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"artigo_ean\": 1234, \n  \"min_price\": 1.00,  \n \"end_date\": \"2021-06-25\", \n  \"description\": \"Produto de Informatica\", \n    \"titulo\": \"Leilao 1\", \n}",
+					"raw": "{\n    \"artigo_ean\": 1234, \n  \"min_price\": 1.00,  \n \"end_date\": \"2022-06-25\", \n  \"description\": \"Produto de Informatica\", \n    \"titulo\": \"Leilao 1\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -129,7 +129,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/",
+					"raw": "http://localhost:8080/leilao/duikt",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -137,7 +137,7 @@
 					"port": "8080",
 					"path": [
 						"leilao",
-						""
+						"duikt"
 					]
 				}
 			},
@@ -187,7 +187,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/<AuthToken>/<artigo_ean>",
+					"raw": "http://localhost:8080/leilao/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -269,6 +269,27 @@
 						"gakwt",
 						"1234567890123",
 						"5,10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Finish Auctions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/dbproj/auction/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"dbproj",
+						"auction",
+						"update"
 					]
 				}
 			},

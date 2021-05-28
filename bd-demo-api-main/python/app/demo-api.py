@@ -524,6 +524,29 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
     return jsonify(result)
 
 
+@app.route("/dbproj/auction/update", methods=['GET'])
+def finish_auction():
+    logger.info("###              DEMO: get /bid auction              ###");   
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+    statement = """ update auction set stateOfAuction = FALSE where end_date < CURRENT_TIMESTAMP  """
+    
+    try:
+        cur.execute(statement)
+        cur.execute("commit")
+        result = f'state of auctions updated successfully '
+        logger.info("---- finish auctions  ----")
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+    finally:
+        if conn is not None:
+            conn.close()
+    return jsonify(result)
+
+
 ##########################################################
 ## DATABASE ACCESS
 ##########################################################
