@@ -97,12 +97,52 @@ end;
 $$;
 
 
+create or replace function func_trig_Create_Auction() returns trigger
+language plpgsql
+as $$
+begin
+	insert into edition values(DEFAULT, new.titulo, new.description, new.artigo_ean);
+	return new;
+end;
+$$;
+
+create trigger Create_Auction
+	after insert on auction
+	for each row
+		execute procedure func_trig_Create_Auction();
+
+
+create or replace function func_trig_Update_Auction() returns trigger
+language plpgsql
+as $$
+declare
+    c1 cursor for 
+        select titulo, description
+        from auction
+        where artigo_ean = new.artigo_ean;
+begin
+	if new.titulo=old.titulo and new.description<>old.description then
+		insert into edition values(DEFAULT, old.titulo, new.description, new.artigo_ean);
+	elseif new.description=old.description and new.titulo<>old.titulo then
+		insert into edition values(DEFAULT, new.titulo, old.description, new.artigo_ean);
+	else
+		insert into edition values(DEFAULT, new.titulo, new.description, new.artigo_ean);
+	END IF;
+	return new;
+end;
+$$;
+
+create trigger Update_Auction
+	after update on auction
+	for each row
+		when (new.actual_bid_price=old.actual_bid_price) 
+			execute procedure func_trig_Update_Auction();
+	
+
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
-INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',NULL,'leilao do dvm',TRUE);
-INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',NULL,'leilao do berna',TRUE);
+INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',5.10,'leilao do dvm',TRUE);
+INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',5.10,'leilao do berna',TRUE);
 INSERT INTO users_auction VALUES('dvm18',1234567890123);
 INSERT INTO users_auction VALUES('bernas',1234567890124);
-INSERT INTO edition VALUES(DEFAULT,'leilao do dvm','PlayStation 4 como nova com um comandos e o pes',1234567890123);
-INSERT INTO edition VALUES(DEFAULT,'leilao do berna','PlayStation 4 como nova com dois comandos e o fifa21',1234567890124);
 insert into message values('olasdsdsdd',DEFAULT,'dvm18',1234567890124);

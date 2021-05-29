@@ -64,19 +64,25 @@ def create_Auction(AuthToken):
     logger.info("---- new Auction  ----")
     logger.debug(f'payload: {payload}')
 
-    # parameterized queries, good for security and performance
-    statement = """
-                  INSERT INTO auction (artigo_ean, min_price, end_date, description, titulo, stateOfAuction) 
-                          VALUES ( %s,   %s ,   %s ,  %s, %s, TRUE)"""
-
-    values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["description"],payload["titulo"])
-
     try:
-        cur.execute(statement, values)
-     
         cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
         rows = cur.fetchall()
         row = rows[0]
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed, Wrong Token!'
+    try:
+         # parameterized queries, good for security and performance
+        statement = """
+                    INSERT INTO auction (artigo_ean, min_price, end_date, description, actual_bid_price ,titulo, stateOfAuction) 
+                            VALUES ( %s,   %s ,   %s ,  %s, %s, %s, TRUE)"""
+
+        values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["description"], payload["min_price"],payload["titulo"])
+
+        cur.execute(statement, values)
+        #cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
+        #rows = cur.fetchall()
+        #row = rows[0]
 
         statement = """ INSERT into users_auction (users_username, auction_artigo_ean)
                             VALUES(%s , %s)"""
@@ -84,17 +90,16 @@ def create_Auction(AuthToken):
         cur.execute(statement, values)
         cur.execute("commit")
 
-        statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+        #statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
+        #values = (payload["titulo"],payload["description"],payload["artigo_ean"])
+        #cur.execute(statement, values)
+        #cur.execute("commit")
+        #logger.info("Added to editions")
 
-        values = (payload["titulo"],payload["description"],payload["artigo_ean"])
-
-        cur.execute(statement, values)
-        cur.execute("commit")
-        logger.info("Added to editions")
         result = 'leilaoID ' + str(payload["artigo_ean"])
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
-        result = 'Failed!'
+        result = 'Failed to create Auction!'
     finally:
         if conn is not None:
             conn.close()
@@ -112,14 +117,16 @@ def update_auction(AuthToken,artigo_ean):
 
     conn = db_connection()
     cur = conn.cursor()
-        
+    
+    #Ver se o Token existe
     try:
         cur.execute("select username from users where token_login = %s", (AuthToken,))
         rows = cur.fetchall()
         row = rows[0]
     except:
-        return jsonify('Error Authentication Token')
+        return jsonify('Error Wrong Token')
 
+    #Ver se o leilao pertence ao User
     try:
         cur.execute("select auction_artigo_ean from users_auction where users_username = %s and auction_artigo_ean = %s", (row,artigo_ean,))
         rows = cur.fetchall()
@@ -127,6 +134,8 @@ def update_auction(AuthToken,artigo_ean):
     except:
         return jsonify('Error in artigo_ean')
    
+    if "titulo" not in content and "description" not in content:
+        return jsonify("Erro, zero campos para alterar")
     if "description" in content and "titulo" in content:
         if content["description"] is None or content["titulo"] is None :
             logger.info("---- Update Auction [Campo Vazio]  ----")
