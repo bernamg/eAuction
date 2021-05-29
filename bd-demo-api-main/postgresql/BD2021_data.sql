@@ -142,36 +142,25 @@ create trigger Update_Auction
 
 /******************************************************
 *******************************************************/
-/*ESTA MAL AINDA*/
 create or replace function func_trig_Send_Message() returns trigger
 language plpgsql
 as $$
 declare
-	/* vai buscar dono do leilao*/
     c1 cursor for 
-        select users_username
-        from users_auction
-        where auction_artigo_ean = new.auction_artigo_ean;
-	c2 cursor for 
-		select users_username
-		from message
-		where auction_artigo_ean = new.auction_artigo_ean group by users_username;
+        select users_username from users_auction 
+		where auction_artigo_ean=1234567890123 
+		union 
+		select users_username 
+		from message 
+		where auction_artigo_ean=1234567890123;
 	
-	temporaria VARCHAR;
 begin
 	for r in c1
 	loop
-		insert into notification values(CONCAT('Nova Mensagem no Leilao ',new.auction_artigo_ean,' de ',new.users_username),CURRENT_TIMESTAMP,FALSE,r.users_username,new.auction_artigo_ean);
-		temporaria = r.users_username;
-	end loop;
-
-	for t in c2
-	loop
-		if(temporaria<>t.users_username) then
-			insert into notification values(CONCAT('Nova Mensagem no Leilao ',new.auction_artigo_ean,' de ',new.users_username),CURRENT_TIMESTAMP,FALSE,t.users_username,new.auction_artigo_ean);
+		if(new.users_username<>r.users_username) then
+			insert into notification values(CONCAT('Nova Mensagem no Leilao ',new.auction_artigo_ean,' de ',new.users_username),CURRENT_TIMESTAMP,FALSE,r.users_username,new.auction_artigo_ean);
 		end if;
 	end loop;
-	
 	return new;
 end;
 $$;
@@ -210,7 +199,6 @@ begin
 
 end;
 $$;
-
 
 
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');

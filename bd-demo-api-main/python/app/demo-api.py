@@ -18,6 +18,7 @@
  
 from flask import Flask, jsonify, request
 import logging, psycopg2, time
+
 import random 
 import string
 import datetime
@@ -248,7 +249,6 @@ def update_auction(AuthToken,artigo_ean):
 ## Write Message
 ########################################################## 
 
-
 @app.route("/leilao10/<AuthToken>/<artigo_ean>", methods=['PUT'])
 def write_message(AuthToken,artigo_ean):
     logger.info("###              DEMO: PUT /message              ###");   
@@ -298,17 +298,6 @@ def write_message(AuthToken,artigo_ean):
 
 
 
-##
-##      Demo POST
-##
-## Add a new department in a JSON payload
-##
-## To use it, you need to use postman or curl: 
-##
-##   curl -X POST http://localhost:8080/departments/ -H "Content-Type: application/json" -d '{"localidade": "Polo II", "ndep": 69, "nome": "Seguranca"}'
-##
-
-
 @app.route("/users/", methods=['POST'])
 def add_departments():
     logger.info("###              DEMO: POST /users              ###");   
@@ -341,17 +330,6 @@ def add_departments():
     return jsonify(result)
 
 
-
-
-##
-##      Demo PUT
-##
-## Update a department based on the a JSON payload
-##
-## To use it, you need to use postman or curl: 
-##
-##   curl -X PUT http://localhost:8080/departments/ -H "Content-Type: application/json" -d '{"ndep": 69, "localidade": "Porto"}'
-##
 @app.route("/departments/", methods=['PUT'])
 def login_action():
     logger.info("###              DEMO: PUT /departments              ###");   
@@ -524,6 +502,31 @@ def get_Notifications(AuthToken):
     conn.close ()
     return jsonify(payload)
 
+
+
+##########################################################
+## Get Leiloes em que esta envolvido
+##########################################################
+
+@app.route("/users2/leilao/envolvido/<AuthToken>", methods=['GET'], strict_slashes=True)
+def get_all_in_auctions():
+    logger.info("###              DEMO: GET /leilao/envolvido/<AuthToken>             ###");   
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT artigo_ean, description FROM auction")
+    rows = cur.fetchall()
+
+    payload = []
+    logger.debug("---- auctions  ----")
+    for row in rows:
+        logger.debug(row)
+        content = {'artigo_ean': int(row[0]), 'description': row[1]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
 ##########################################################
 ## Bid Auction
 ##########################################################
