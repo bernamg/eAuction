@@ -249,7 +249,7 @@ def update_auction(AuthToken,artigo_ean):
 ########################################################## 
 
 
-@app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
+@app.route("/leilao10/<AuthToken>/<artigo_ean>", methods=['PUT'])
 def write_message(AuthToken,artigo_ean):
     logger.info("###              DEMO: PUT /message              ###");   
     content = request.get_json()
@@ -460,12 +460,28 @@ def get_DetailsAuction(artigo_ean):
         row = rows[0]
         content = {'artigo_ean': int(row[0]), 'min_price': row[1], 'end_date': row[2], 'description': row[3], 'actual_bid_price': row[4], 'titulo': row[5]}
         paypload.append(content)
-        cur.execute("select users_username, text from message where auction_artigo_ean = %s order by id", (artigo_ean,))
+        #cur.execute("select users_username, text from message where auction_artigo_ean = %s order by id", (artigo_ean,))
+        #rows = cur.fetchall()
+        #row = row[0]
+        #for row in rows:
+            #content = {'users_username':row[0],'text':row[1] }
+            #paypload.append(content)
+        cur.execute("CALL details("+artigo_ean+");")
+        cur.execute("select bid_price, users_username from temp1;")
         rows = cur.fetchall()
-        row = row[0]
         for row in rows:
-            content = {'users_username':row[0],'text':row[1] }
+            content = {'bid:price': int(row[0]), 'users_username': row[1]}
             paypload.append(content)
+
+        cur.execute("select message_notif, users_username from temp2;")
+        rows = cur.fetchall()
+        for row in rows:
+            content = {'message_notif': row[0], 'users_username': row[1]}
+            paypload.append(content)
+        
+        cur.execute("drop table temp1, temp2;")
+        cur.execute("commit")
+        logger.debug("after commit")
     except(Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         rows = "0 results"

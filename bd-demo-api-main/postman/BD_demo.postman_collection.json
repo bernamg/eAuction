@@ -236,14 +236,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/<AuthToken>/<artigo_ean>",
+					"raw": "http://localhost:8080/leilao10/<AuthToken>/<artigo_ean>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"leilao",
+						"leilao10",
 						"<AuthToken>",
 						"<artigo_ean>"
 					]

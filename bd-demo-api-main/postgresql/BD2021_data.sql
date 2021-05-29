@@ -139,6 +139,34 @@ create trigger Update_Auction
 			execute procedure func_trig_Update_Auction();
 	
 
+create or replace procedure details(artigo_ean BIGINT)
+language plpgsql
+as $$
+declare
+    c1 cursor for 
+        select bid_price, users_username
+        from bid
+        where auction_artigo_ean = (artigo_ean);
+    c2 cursor for 
+        select text, users_username
+        from message
+        where auction_artigo_ean = (artigo_ean);
+begin 
+    create table temp1(bid_price FLOAT, users_username VARCHAR(512));
+    create table temp2(message_notif VARCHAR(512), users_username VARCHAR(512));
+    for r in c1
+    loop
+        insert into temp1 values(r.bid_price,r.users_username);
+    end loop;
+
+    for r in c2
+    loop
+        insert into temp2 values(r.text,r.users_username);
+    end loop;
+
+end;
+$$;
+
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
 INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',5.10,'leilao do dvm',TRUE);
