@@ -63,7 +63,7 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_ar
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 
-create or replace procedure bidNotification(artigo_ean BIGINT)
+create or replace procedure bidNotification(artigo_ean BIGINT, username VARCHAR)
 language plpgsql
 as $$
 declare
@@ -75,8 +75,10 @@ declare
 begin 
     for r in c1
     loop
-		insert into notification values(CONCAT('A sua bid de ',r.max,' no LeilaoID: ',artigo_ean,' foi ultrapassada'),CURRENT_TIMESTAMP,FALSE,r.users_username,artigo_ean);
-    end loop;
+		if r.users_username <> (username) then
+			insert into notification values(CONCAT('A sua bid de ',r.max,' no LeilaoID: ',artigo_ean,' foi ultrapassada'),CURRENT_TIMESTAMP,FALSE,r.users_username,artigo_ean);
+		end if;
+	end loop;
 end;
 $$;
 
@@ -111,7 +113,7 @@ create trigger Create_Auction
 	for each row
 		execute procedure func_trig_Create_Auction();
 
-
+/*----------------------------------------------------------------------*/
 create or replace function func_trig_Update_Auction() returns trigger
 language plpgsql
 as $$
@@ -137,8 +139,50 @@ create trigger Update_Auction
 	for each row
 		when (new.actual_bid_price=old.actual_bid_price) 
 			execute procedure func_trig_Update_Auction();
-	
 
+/******************************************************
+*******************************************************/
+/*ESTA MAL AINDA*/
+create or replace function func_trig_Send_Message() returns trigger
+language plpgsql
+as $$
+declare
+	/* vai buscar dono do leilao*/
+    c1 cursor for 
+        select users_username
+        from users_auction
+        where auction_artigo_ean = new.auction_artigo_ean;
+	c2 cursor for 
+		select users_username
+		from message
+		where auction_artigo_ean = new.auction_artigo_ean group by users_username;
+	
+	temporaria VARCHAR;
+begin
+	for r in c1
+	loop
+		insert into notification values(CONCAT('Nova Mensagem no Leilao ',new.auction_artigo_ean,' de ',new.users_username),CURRENT_TIMESTAMP,FALSE,r.users_username,new.auction_artigo_ean);
+		temporaria = r.users_username;
+	end loop;
+
+	for t in c2
+	loop
+		if(temporaria<>t.users_username) then
+			insert into notification values(CONCAT('Nova Mensagem no Leilao ',new.auction_artigo_ean,' de ',new.users_username),CURRENT_TIMESTAMP,FALSE,t.users_username,new.auction_artigo_ean);
+		end if;
+	end loop;
+	
+	return new;
+end;
+$$;
+
+create trigger Message_Notification
+	after insert on message
+	for each row
+			execute procedure func_trig_Send_Message();
+
+/******************************************************
+*******************************************************/
 create or replace procedure details(artigo_ean BIGINT)
 language plpgsql
 as $$
@@ -166,6 +210,8 @@ begin
 
 end;
 $$;
+
+
 
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');

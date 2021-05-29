@@ -281,6 +281,7 @@ def write_message(AuthToken,artigo_ean):
 
 
     values = (content["text"],row[0],artigo_ean)
+    
 
     try:
 
@@ -523,6 +524,10 @@ def get_Notifications(AuthToken):
     conn.close ()
     return jsonify(payload)
 
+##########################################################
+## Bid Auction
+##########################################################
+
 @app.route("/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>", methods=['GET'])
 def bid_action(AuthToken,auction_artigo_ean,bid_price):
     logger.info("###              DEMO: PUT /bid action              ###");   
@@ -530,27 +535,19 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
 
     conn = db_connection()
     cur = conn.cursor()
-    
+
 
     logger.info("---- update bid  ----")
     logger.info(f'auction_artigo_ean: {auction_artigo_ean}' + f'bid_price: {bid_price} '+ f'AuthToken: {AuthToken}')
 
-    # parameterized queries, good for security and performance
+    #Verificacao
     try:
-        #Notificar antigo maior bider 
-        #VER TITULO
-           # cur.execute(" select users_username, bid_price from bid where bid_price = (select max(bid_price) from bid) and auction_artigo_ean= %s", (auction_artigo_ean,))
-            #rows = cur.fetchall()
-            #row = rows[0]
-
-            #datetime_object = datetime.datetime.now()
-            #statement = """INSERT INTO notification VALUES('A sua bid de %s foi ultrapassada',%s,%s,%s);"""
-            #values = (row[1],datetime_object,row[0],auction_artigo_ean)
-            #cur.execute(statement,values)
-            logger.info("BEFORE BIDNOTIFICATION")
-            cur.execute("CALL bidNotification("+auction_artigo_ean+");")
-            logger.info("Notification Sended")
-
+        cur.execute("select username from users_auction, users where auction_artigo_ean=%s and users.token_login= %s and username=users_auction.users_username;",(auction_artigo_ean,AuthToken,))
+        if(cur.rowcount > 0):
+            return jsonify("Nao pode fazer licitacoes no seu leilao")
+        cur.execute("select bid.bid_price from bid where bid.bid_price >= %s;",(bid_price,))
+        if(cur.rowcount >= 1):
+            return jsonify("Bid mais baixa que o necessario")  
     except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
 
@@ -561,18 +558,22 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
         if(cur.rowcount == 0):
             result = f'there is no token'
         else:
+            #POR AQUI PROCEDURE
             row = rows[0]
             logger.info("---- username  ----" +row[0] )
             statement = """ insert into bid values(%s,%s,%s) """
             values = (bid_price,auction_artigo_ean,row[0])
             cur.execute(statement,values)
 
-            #verificar valores das  bids uqbas
             statement = """update auction set actual_bid_price = %s where artigo_ean = %s"""
             values = (bid_price,auction_artigo_ean)
             cur.execute(statement,values)
             result = f'successfully bid'
             cur.execute("commit")
+
+            logger.info("BEFORE BIDNOTIFICATION")
+            cur.execute("CALL bidNotification(%s,%s)",(auction_artigo_ean,row[0],))
+            logger.info("Notification Sended")
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         result = 'Failed!'
@@ -581,7 +582,6 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
         if conn is not None:
             conn.close()
     return jsonify(result)
-
 
 @app.route("/dbproj/auction/update", methods=['GET'])
 def finish_auction():
