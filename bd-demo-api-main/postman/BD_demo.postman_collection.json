@@ -94,7 +94,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/dbproj/leiloes/<description>",
+					"raw": "http://localhost:8080/dbproj/leiloes/PlayStation",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -103,7 +103,7 @@
 					"path": [
 						"dbproj",
 						"leiloes",
-						"<description>"
+						"PlayStation"
 					]
 				}
 			},
@@ -116,7 +116,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": 69, \n    \"email\": \"Polo II\", \n    \"password\": \"Informatica\"\n}",
+					"raw": "{\n    \"username\": \"sobras\", \n    \"email\": \"Polo II\", \n    \"password\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -154,7 +154,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/dbproj/leilao/<AuthToken>",
+					"raw": "http://localhost:8080/dbproj/leilao/uywhp",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -163,7 +163,7 @@
 					"path": [
 						"dbproj",
 						"leilao",
-						"<AuthToken>"
+						"uywhp"
 					]
 				}
 			},
@@ -176,7 +176,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"dvm18\",\n    \"password\": \"123\"\n}",
+					"raw": "{\n    \"username\": \"bernas\",\n    \"password\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -235,7 +235,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/dbproj/leilao/<artigo_ean>",
+					"raw": "http://localhost:8080/dbproj/leilao/1234",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -244,7 +244,7 @@
 					"path": [
 						"dbproj",
 						"leilao",
-						"<artigo_ean>"
+						"1234"
 					]
 				}
 			},
@@ -257,7 +257,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"text\": \"Insert message\"\n}",
+					"raw": "{\n    \"text\": \"ola ola\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -265,7 +265,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao10/<AuthToken>/<artigo_ean>",
+					"raw": "http://localhost:8080/leilao10/xxtqf/1234",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -273,8 +273,8 @@
 					"port": "8080",
 					"path": [
 						"leilao10",
-						"<AuthToken>",
-						"<artigo_ean>"
+						"xxtqf",
+						"1234"
 					]
 				}
 			},
@@ -286,7 +286,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>",
+					"raw": "http://localhost:8080/dbproj/bid/hedub/1234/811",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -295,9 +295,9 @@
 					"path": [
 						"dbproj",
 						"bid",
-						"<AuthToken>",
-						"<auction_artigo_ean>",
-						"<bid_price>"
+						"hedub",
+						"1234",
+						"811"
 					]
 				}
 			},
@@ -309,7 +309,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users2/<AuthToken>",
+					"raw": "http://localhost:8080/users2/xnrms",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -317,7 +317,7 @@
 					"port": "8080",
 					"path": [
 						"users2",
-						"<AuthToken>"
+						"xnrms"
 					]
 				}
 			},
@@ -339,6 +339,28 @@
 						"dbproj",
 						"auction",
 						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Auctions activity",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/dbproj/auction/activity/<AuthToken>",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"dbproj",
+						"auction",
+						"activity",
+						"<AuthToken>"
 					]
 				}
 			},
