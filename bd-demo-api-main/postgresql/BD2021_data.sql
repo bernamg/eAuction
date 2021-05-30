@@ -63,6 +63,38 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_ar
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 
+/* Verificar se user está logado e qual o seu username*/
+create or replace function IsUserLogged(AuthToken VARCHAR) returns VARCHAR
+language plpgsql
+as $$
+declare
+	x VARCHAR;
+begin
+	select username into x from users where token_login = (AuthToken);
+	return(x);
+exception
+	when others then
+		raise exception 'error';
+end;
+$$;
+
+/* Verifica se o artigo_ean existe*/
+create or replace function IsAuctionCorrect(rec_artigo_ean BIGINT) returns BIGINT
+language plpgsql
+as $$
+declare
+	x BIGINT;
+begin
+		select artigo_ean into x from auction where artigo_ean = (rec_artigo_ean);
+	return(x);
+exception
+	when others then
+		raise exception 'error';
+end;
+$$;
+
+
+
 /*Finish auction*/
 create or replace procedure finishAuction()
 language plpgsql
@@ -121,6 +153,7 @@ begin
 end;
 $$;
 
+/*------------------------------------------------------*/
 
 create or replace function func_trig_Create_Auction() returns trigger
 language plpgsql
@@ -230,4 +263,6 @@ INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como n
 INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',5.10,'leilao do berna',TRUE);
 INSERT INTO users_auction VALUES('dvm18',1234567890123);
 INSERT INTO users_auction VALUES('bernas',1234567890124);
-insert into message values('olasdsdsdd',DEFAULT,'dvm18',1234567890124);
+insert into message values('ola',DEFAULT,'dvm18',1234567890124);
+insert into message values('ola tudo bem',DEFAULT,'bernas',1234567890124);
+insert into message values('sempre a puxar croquetes',DEFAULT,'dvm18',1234567890124);
