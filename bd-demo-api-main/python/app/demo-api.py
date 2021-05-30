@@ -41,6 +41,7 @@ def hello():
 ##########################################################
 ## Read Messages
 ##########################################################
+
 @app.route("/dbproj/leiloes/mensagens/<AuthToken>/<artigo_ean>", methods=['GET'], strict_slashes=True)
 def get_messages(AuthToken,artigo_ean):
     logger.info("###              DEMO: GET /leiloes/mensagens/<AuthToken>/<artigo_ean>              ###");   
@@ -49,11 +50,22 @@ def get_messages(AuthToken,artigo_ean):
     cur = conn.cursor()
 
     try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Token inexistente ou Sessao Expirada'
+
+    try:
+        #Ver se o user existe e esta logado
         cur.execute("select IsUserLogged(%s)",(AuthToken,))
         rows = cur.fetchall()
         row = rows[0]
         if(row[0]==None):
             return jsonify('User Incorreto')
+        #Ver se o leilao existe
         cur.execute("select IsAuctionCorrect(%s)",(artigo_ean,))
         rows = cur.fetchall()
         row = rows[0]
@@ -75,6 +87,7 @@ def get_messages(AuthToken,artigo_ean):
 
     conn.close()
     return jsonify(payload)
+
 ##########################################################
 ## Create Auction
 ##########################################################
@@ -91,12 +104,21 @@ def create_Auction(AuthToken):
     logger.debug(f'payload: {payload}')
 
     try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Token inexistente ou Sessao Expirada'
+
+    try:
         cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
         rows = cur.fetchall()
         row = rows[0]
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
-        result = 'Failed, Wrong Token!'
+        result = 'User Incorreto ou Sessao Expirada'
     try:
          # parameterized queries, good for security and performance
         statement = """
@@ -138,24 +160,33 @@ def update_auction(AuthToken,artigo_ean):
     conn = db_connection()
     cur = conn.cursor()
     
-    #Ver se o Token existe
+    #PROTECOES
     try:
-        cur.execute("select username from users where token_login = %s", (AuthToken,))
-        rows = cur.fetchall()
-        row = rows[0]
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
     except:
-        return jsonify('Error Wrong Token')
+        return 'Token inexistente ou Sessao Expirada'
 
-    #Ver se o leilao pertence ao User
     try:
-        cur.execute("select auction_artigo_ean from users_auction where users_username = %s and auction_artigo_ean = %s", (row,artigo_ean,))
+        #Ver se o user existe e esta logado
+        cur.execute("select IsUserLogged(%s)",(AuthToken,))
+        rows_username = cur.fetchall()
+        row_username = rows_username[0]
+        if(row_username[0]==None):
+            return jsonify('User Incorreto ou Sessao Expirada')
+    
+        #Ver se o leilao pertence ao User
+        cur.execute("select IsAuctionFromUser(%s,"+artigo_ean+");",(row_username[0],))
         rows = cur.fetchall()
         row = rows[0]
+        if(row[0] == None):
+            return jsonify('Nao pode alterar um Leilao de outro utilizador') 
     except:
-        return jsonify('Error in artigo_ean')
+        return jsonify('Failed on first try!')
    
     if "titulo" not in content and "description" not in content:
         return jsonify("Erro, zero campos para alterar")
+
     if "description" in content and "titulo" in content:
         if content["description"] is None or content["titulo"] is None :
             logger.info("---- Update Auction [Campo Vazio]  ----")
@@ -287,11 +318,13 @@ def write_message(AuthToken,artigo_ean):
     logger.info(f'content: {content}')
 
     try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
         cur.execute("select username from users where token_login = %s", (AuthToken,))
         rows = cur.fetchall()
         row = rows[0]
     except:
-        return 'Error'
+        return 'Token inexistente ou Sessao Expirada'
 
     # parameterized queries, good for security and performance
     statement ="""
@@ -349,6 +382,9 @@ def register_person():
 
     return jsonify(result)
 
+##########################################################
+## Login User
+########################################################## 
 
 @app.route("/dbproj/users", methods=['PUT'])
 def login_action():
@@ -387,7 +423,7 @@ def login_action():
             letters = string.ascii_lowercase
             result_str = ''.join(random.choice(letters) for i in range(5))
             result = f'authToken: ' + result_str
-            statement = """ update users set token_login = %s  where username = %s """
+            statement = """ update users set token_login = %s, validade = (CURRENT_TIMESTAMP + '2 hour') where username = %s """
             values = (result_str,content["username"])
             cur.execute(statement,values)
         cur.execute("commit")
@@ -399,6 +435,9 @@ def login_action():
             conn.close()
     return jsonify(result)
 
+##########################################################
+## Ver todos os leiloes e sua descricao
+########################################################## 
 
 @app.route("/dbproj/leiloes", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
@@ -419,6 +458,10 @@ def get_all_auctions():
 
     conn.close()
     return jsonify(payload)
+
+##########################################################
+## Procura por um leilao com uma descricao ou artigo_ean
+########################################################## 
 
 @app.route("/dbproj/leiloes/<description>", methods=['GET'])
 def get_oneAuction(description):
@@ -442,6 +485,10 @@ def get_oneAuction(description):
 
     conn.close ()
     return jsonify(rows)
+
+##########################################################
+## Ver detalhes de um determinado leilao
+########################################################## 
 
 @app.route("/dbproj/leilao/<artigo_ean>", methods=['GET'])
 def get_DetailsAuction(artigo_ean):
@@ -488,6 +535,9 @@ def get_DetailsAuction(artigo_ean):
     conn.close ()
     return jsonify(paypload)
 
+##########################################################
+## Ver notificacoes e elimina depois
+########################################################## 
 
 @app.route("/users2/<AuthToken>", methods=['GET'])
 def get_Notifications(AuthToken):
@@ -495,6 +545,15 @@ def get_Notifications(AuthToken):
     conn = db_connection()
     cur = conn.cursor()
     payload = []
+
+    try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Token inexistente ou Sessao Expirada'
 
     try:
         cur.execute("select username from users where token_login = %s;",(AuthToken,))
@@ -522,32 +581,6 @@ def get_Notifications(AuthToken):
     conn.close ()
     return jsonify(payload)
 
-
-
-##########################################################
-## Get Leiloes em que esta envolvido
-##########################################################
-
-@app.route("/users2/leilao/envolvido/<AuthToken>", methods=['GET'], strict_slashes=True)
-def get_all_in_auctions():
-    logger.info("###              DEMO: GET /leilao/envolvido/<AuthToken>             ###");   
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT artigo_ean, description FROM auction")
-    rows = cur.fetchall()
-
-    payload = []
-    logger.debug("---- auctions  ----")
-    for row in rows:
-        logger.debug(row)
-        content = {'artigo_ean': int(row[0]), 'description': row[1]}
-        payload.append(content) # appending to the payload to be returned
-
-    conn.close()
-    return jsonify(payload)
-    
 ##########################################################
 ## Bid Auction
 ##########################################################
@@ -563,6 +596,15 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
 
     logger.info("---- update bid  ----")
     logger.info(f'auction_artigo_ean: {auction_artigo_ean}' + f'bid_price: {bid_price} '+ f'AuthToken: {AuthToken}')
+
+    try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Token inexistente ou Sessao Expirada'
 
     #Verificacao
     try:
@@ -613,6 +655,10 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
             conn.close()
     return jsonify(result)
 
+##########################################################
+## Atualizar leiloes acabados
+########################################################## 
+
 @app.route("/dbproj/auction/update", methods=['GET'])
 def finish_auction():
     logger.info("###              DEMO: get /bid auction              ###");   
@@ -633,6 +679,9 @@ def finish_auction():
             conn.close()
     return jsonify(result)
 
+##########################################################
+## Ver todos os leiloes em que tem atividade
+########################################################## 
 
 @app.route("/dbproj/auction/activity/<AuthToken>", methods=['GET'])
 def activityOfUsers(AuthToken):
@@ -642,7 +691,16 @@ def activityOfUsers(AuthToken):
     cur = conn.cursor()
     payload = []
     statement =  """ select users_auction.auction_artigo_ean from users_auction where users_username = %s union select bid.auction_artigo_ean from bid where users_username = %s ; """
-    
+
+    try:
+        cur.execute("CALL TokenDateValidation();")
+        cur.execute("commit")
+        cur.execute("select username from users where token_login = %s", (AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+    except:
+        return 'Token inexistente ou Sessao Expirada'
+
     try:
         cur.execute("select username from users where token_login = %s ",(AuthToken,))
         rows = cur.fetchall()

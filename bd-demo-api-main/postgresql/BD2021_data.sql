@@ -21,6 +21,7 @@ CREATE TABLE users (
 	email	 VARCHAR(512) UNIQUE NOT NULL,
 	password	 VARCHAR(512) NOT NULL,
 	token_login VARCHAR(512),
+	validade	 TIMESTAMP,
 	PRIMARY KEY(username)
 );
 
@@ -62,8 +63,24 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk1 FOREIGN KEY (users_user
 ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
+/*Verifica validade*/
+create or replace procedure TokenDateValidation() 
+language plpgsql
+as $$
+declare
+	c1 cursor for
+		select token_login, validade from users;	
+begin
+	 for r in c1
+    loop
+		if r.validade < CURRENT_TIMESTAMP + '1 hour' then
+			update users set token_login=NULL, validade=NULL where r.token_login=token_login;
+		end if;
+    end loop;
+end;
+$$;
 
-/* Verificar se user está logado e qual o seu username*/
+/* Verificar se user esta logado e qual o seu username*/
 create or replace function IsUserLogged(AuthToken VARCHAR) returns VARCHAR
 language plpgsql
 as $$
@@ -93,14 +110,27 @@ exception
 end;
 $$;
 
-
+/* Verifica se um leilao pertence a um user */
+create or replace function IsAuctionFromUser(username VARCHAR, rec_artigo_ean BIGINT) returns BIGINT
+language plpgsql
+as $$
+declare
+	x BIGINT;
+begin
+		select auction_artigo_ean into x from users_auction where users_username = (username) and auction_artigo_ean = (rec_artigo_ean);
+	return(x);
+exception
+	when others then
+		raise exception 'error';
+end;
+$$;
 
 /*Finish auction*/
 create or replace procedure finishAuction()
 language plpgsql
 as $$
 begin 
-    update auction set stateOfAuction = FALSE where end_date < CURRENT_TIMESTAMP;
+    update auction set stateOfAuction = FALSE where end_date < CURRENT_TIMESTAMP + '1 hour';
 end;
 $$;
 
