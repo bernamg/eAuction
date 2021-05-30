@@ -38,18 +38,43 @@ def hello():
     """
 
 
+##########################################################
+## Read Messages
+##########################################################
+@app.route("/dbproj/leiloes/mensagens/<AuthToken>/<artigo_ean>", methods=['GET'], strict_slashes=True)
+def get_messages(AuthToken,artigo_ean):
+    logger.info("###              DEMO: GET /leiloes/mensagens/<AuthToken>/<artigo_ean>              ###");   
 
+    conn = db_connection()
+    cur = conn.cursor()
 
-##
-##      Demo GET
-##
-## Obtain department with ndep <ndep>
-##
-## To use it, access: 
-## 
-##   http://localhost:8080/departments/10
-##
+    try:
+        cur.execute("select IsUserLogged(%s)",(AuthToken,))
+        rows = cur.fetchall()
+        row = rows[0]
+        if(row[0]==None):
+            return jsonify('User Incorreto')
+        cur.execute("select IsAuctionCorrect(%s)",(artigo_ean,))
+        rows = cur.fetchall()
+        row = rows[0]
+        if(row[0]==None):
+            return jsonify('Leilao nao encontrado')
 
+        cur.execute("SELECT id, text, users_username FROM message where auction_artigo_ean =%s order by id desc",(artigo_ean,))
+        rows = cur.fetchall()
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+        result = 'Failed!'
+
+    payload = []
+    logger.debug("Messages print")
+    for row in rows:
+        logger.debug(row)
+        content = {'ID': int(row[0]), 'Mensagem': row[1], 'User':row[2]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
 ##########################################################
 ## Create Auction
 ##########################################################
@@ -238,7 +263,6 @@ def update_auction(AuthToken,artigo_ean):
                 conn.close()
         return jsonify(result)
 
-
 ##########################################################
 ## Write Message
 ########################################################## 
@@ -290,7 +314,9 @@ def write_message(AuthToken,artigo_ean):
             conn.close()
     return jsonify(result)
 
-
+##########################################################
+## Register User
+########################################################## 
 
 @app.route("/dbproj/users/", methods=['POST'])
 def register_person():

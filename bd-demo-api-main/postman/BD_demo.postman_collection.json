@@ -26,6 +26,29 @@
 			"response": []
 		},
 		{
+			"name": "Read messages from an auction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/dbproj/leiloes/mensagens/<AuthToken>/<artigo_ean>",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"dbproj",
+						"leiloes",
+						"mensagens",
+						"<AuthToken>",
+						"<artigo_ean>"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Obtain All Auctions",
 			"request": {
 				"method": "GET",
