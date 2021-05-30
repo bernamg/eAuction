@@ -54,7 +54,7 @@ def hello():
 ## Create Auction
 ##########################################################
 
-@app.route("/leilao/<AuthToken>", methods=['POST'])
+@app.route("/dbproj/leilao/<AuthToken>", methods=['POST'])
 def create_Auction(AuthToken):
     logger.info("###              DEMO: POST /leilao              ###");   
     payload = request.get_json()
@@ -105,7 +105,7 @@ def create_Auction(AuthToken):
 ## Edit Auction
 ##########################################################
 
-@app.route("/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
+@app.route("/dbproj/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
 def update_auction(AuthToken,artigo_ean):
     logger.info("###              DEMO: PUT /leiao              ###");   
     content = request.get_json()
@@ -292,8 +292,8 @@ def write_message(AuthToken,artigo_ean):
 
 
 
-@app.route("/users/", methods=['POST'])
-def add_departments():
+@app.route("/dbproj/users/", methods=['POST'])
+def register_person():
     logger.info("###              DEMO: POST /users              ###");   
     payload = request.get_json()
 
@@ -324,7 +324,7 @@ def add_departments():
     return jsonify(result)
 
 
-@app.route("/departments/", methods=['PUT'])
+@app.route("/dbproj/users", methods=['PUT'])
 def login_action():
     logger.info("###              DEMO: PUT /departments              ###");   
     content = request.get_json()
@@ -374,7 +374,7 @@ def login_action():
     return jsonify(result)
 
 
-@app.route("/users/auctions", methods=['GET'], strict_slashes=True)
+@app.route("/dbproj/leiloes", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
 
@@ -394,7 +394,7 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
-@app.route("/users/<description>", methods=['GET'])
+@app.route("/dbproj/leiloes/<description>", methods=['GET'])
 def get_oneAuction(description):
     logger.info("###              DEMO: GET /users/<description>              ###");   
 
@@ -417,7 +417,7 @@ def get_oneAuction(description):
     conn.close ()
     return jsonify(rows)
 
-@app.route("/users1/<artigo_ean>", methods=['GET'])
+@app.route("/dbproj/leilao/<artigo_ean>", methods=['GET'])
 def get_DetailsAuction(artigo_ean):
     logger.info("###              DEMO: GET /users/<description>              ###");   
 
@@ -539,6 +539,7 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
 
     #Verificacao
     try:
+        cur.execute("CALL finishAuction();")
         cur.execute("select AuctionEndVerification(%s)",(auction_artigo_ean,))
         rows = cur.fetchall()
         row=rows[0]
@@ -547,7 +548,7 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
         cur.execute("select username from users_auction, users where auction_artigo_ean=%s and users.token_login= %s and username=users_auction.users_username;",(auction_artigo_ean,AuthToken,))
         if(cur.rowcount > 0):
             return jsonify("Nao pode fazer licitacoes no seu leilao")
-        cur.execute("select bid.bid_price from bid where bid.bid_price >= %s;",(bid_price,))
+        cur.execute("select bid.bid_price from bid where bid.bid_price >= %s and auction_artigo_ean = %s;",(bid_price,auction_artigo_ean,))
         if(cur.rowcount >= 1):
             return jsonify("Bid mais baixa que o necessario")  
     except (Exception, psycopg2.DatabaseError) as error:

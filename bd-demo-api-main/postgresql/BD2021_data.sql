@@ -171,11 +171,11 @@ as $$
 declare
     c1 cursor for 
         select users_username from users_auction 
-		where auction_artigo_ean=1234567890123 
+		where auction_artigo_ean=new.auction_artigo_ean
 		union 
 		select users_username 
 		from message 
-		where auction_artigo_ean=1234567890123;
+		where auction_artigo_ean=new.auction_artigo_ean;
 	
 begin
 	for r in c1

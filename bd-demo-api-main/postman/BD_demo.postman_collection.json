@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "397e56ea-d52e-484b-b0cd-e4af6cd2b6bb",
+		"_postman_id": "2c2d276f-59e4-4cb9-9174-f7d584db4296",
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -31,15 +31,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users/auctions",
+					"raw": "http://localhost:8080/dbproj/leiloes",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"users",
-						"auctions"
+						"dbproj",
+						"leiloes"
 					]
 				}
 			},
@@ -71,15 +71,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users/1234567890123",
+					"raw": "http://localhost:8080/dbproj/leiloes/<description>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"users",
-						"1234567890123"
+						"dbproj",
+						"leiloes",
+						"<description>"
 					]
 				}
 			},
@@ -100,13 +101,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/",
+					"raw": "http://localhost:8080/dbproj/users/",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"dbproj",
 						"users",
 						""
 					]
@@ -129,15 +131,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/duikt",
+					"raw": "http://localhost:8080/dbproj/leilao/<AuthToken>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"dbproj",
 						"leilao",
-						"duikt"
+						"<AuthToken>"
 					]
 				}
 			},
@@ -158,15 +161,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/departments/",
+					"raw": "http://localhost:8080/dbproj/users",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"departments",
-						""
+						"dbproj",
+						"users"
 					]
 				}
 			},
@@ -187,15 +190,17 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/leilao/",
+					"raw": "http://localhost:8080/dbproj/leilao/<AuthToken>/<artigo_ean>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"dbproj",
 						"leilao",
-						""
+						"<AuthToken>",
+						"<artigo_ean>"
 					]
 				}
 			},
@@ -207,15 +212,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users1/1234567890123",
+					"raw": "http://localhost:8080/dbproj/leilao/<artigo_ean>",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"users1",
-						"1234567890123"
+						"dbproj",
+						"leilao",
+						"<artigo_ean>"
 					]
 				}
 			},
@@ -257,7 +263,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/dbproj/bid/gakwt/1234567890123/5,10",
+					"raw": "http://localhost:8080/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -266,9 +272,9 @@
 					"path": [
 						"dbproj",
 						"bid",
-						"gakwt",
-						"1234567890123",
-						"5,10"
+						"<AuthToken>",
+						"<auction_artigo_ean>",
+						"<bid_price>"
 					]
 				}
 			},
@@ -294,7 +300,6 @@
 			},
 			"response": []
 		},
-
 		{
 			"name": "Finish Auctions",
 			"request": {
