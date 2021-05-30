@@ -633,6 +633,37 @@ def finish_auction():
     return jsonify(result)
 
 
+@app.route("/dbproj/auction/activity/<AuthToken>", methods=['GET'])
+def activityOfUsers(AuthToken):
+    logger.info("###              DEMO: get /bid auction              ###");   
+    content = request.get_json()
+    conn = db_connection()
+    cur = conn.cursor()
+    payload = []
+    statement =  """ select users_auction.auction_artigo_ean from users_auction where users_username = %s union select bid.auction_artigo_ean from bid where users_username = %s ; """
+    
+    try:
+        cur.execute("select username from users where token_login = %s ",(AuthToken,))
+        rows = cur.fetchall()
+        row=rows[0]
+        values = (row[0],row[0])
+        logger.info
+        cur.execute(statement,values)
+        rows = cur.fetchall()
+        for row in rows:
+            cur.execute("select titulo, description from auction where artigo_ean = %s; ",(row[0],))
+            rows1 = cur.fetchall()
+            row1 = rows1[0]
+            content = {"Titulo ":row1[0],"Descrição ":row1[1] ,"Artigo_ean ": row[0]}
+            payload.append(content)
+        cur.execute("commit")
+    except (Exception, psycopg2.DatabaseError) as error:
+        logger.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+    return jsonify(payload)
+
 ##########################################################
 ## DATABASE ACCESS
 ##########################################################

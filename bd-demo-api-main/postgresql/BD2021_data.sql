@@ -257,6 +257,17 @@ end;
 $$;
 
 
+create or replace function func_trig_Create_Auction() returns trigger
+language plpgsql
+as $$
+begin
+	insert into edition values(DEFAULT, new.titulo, new.description, new.artigo_ean);
+	return new;
+end;
+$$;
+
+
+
 INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
 INSERT INTO users VALUES('bernas','bernas@student.uc','123');
 INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',5.10,'leilao do dvm',TRUE);
