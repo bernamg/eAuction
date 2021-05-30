@@ -39,7 +39,7 @@ def hello():
 
 
 ##########################################################
-## Read Messages
+## Read Messages                                     CHECK
 ##########################################################
 
 @app.route("/dbproj/leiloes/mensagens/<AuthToken>/<artigo_ean>", methods=['GET'], strict_slashes=True)
@@ -48,7 +48,8 @@ def get_messages(AuthToken,artigo_ean):
 
     conn = db_connection()
     cur = conn.cursor()
-
+    
+    #Token Validation
     try:
         cur.execute("CALL TokenDateValidation();")
         cur.execute("commit")
@@ -59,12 +60,6 @@ def get_messages(AuthToken,artigo_ean):
         return 'Token inexistente ou Sessao Expirada'
 
     try:
-        #Ver se o user existe e esta logado
-        cur.execute("select IsUserLogged(%s)",(AuthToken,))
-        rows = cur.fetchall()
-        row = rows[0]
-        if(row[0]==None):
-            return jsonify('User Incorreto')
         #Ver se o leilao existe
         cur.execute("select IsAuctionCorrect(%s)",(artigo_ean,))
         rows = cur.fetchall()
@@ -89,7 +84,7 @@ def get_messages(AuthToken,artigo_ean):
     return jsonify(payload)
 
 ##########################################################
-## Create Auction
+## Create Auction                                    CHECK
 ##########################################################
 
 @app.route("/dbproj/leilao/<AuthToken>", methods=['POST'])
@@ -103,6 +98,7 @@ def create_Auction(AuthToken):
     logger.info("---- new Auction  ----")
     logger.debug(f'payload: {payload}')
 
+    #   Token Validation
     try:
         cur.execute("CALL TokenDateValidation();")
         cur.execute("commit")
@@ -111,16 +107,9 @@ def create_Auction(AuthToken):
         row = rows[0]
     except:
         return 'Token inexistente ou Sessao Expirada'
-
+    
     try:
-        cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
-        rows = cur.fetchall()
-        row = rows[0]
-    except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
-        result = 'User Incorreto ou Sessao Expirada'
-    try:
-         # parameterized queries, good for security and performance
+        #Inserir na tabela auction
         statement = """
                     INSERT INTO auction (artigo_ean, min_price, end_date, description, actual_bid_price ,titulo, stateOfAuction) 
                             VALUES ( %s,   %s ,   %s ,  %s, %s, %s, TRUE)"""
@@ -128,10 +117,7 @@ def create_Auction(AuthToken):
         values = (payload["artigo_ean"], payload["min_price"], payload["end_date"], payload["description"], payload["min_price"],payload["titulo"])
 
         cur.execute(statement, values)
-        #cur.execute("SELECT username FROM users where token_login = %s", (AuthToken,) )
-        #rows = cur.fetchall()
-        #row = rows[0]
-
+        #Associar auction a user
         statement = """ INSERT into users_auction (users_username, auction_artigo_ean)
                             VALUES(%s , %s)"""
         values = (row, payload["artigo_ean"])
@@ -149,7 +135,7 @@ def create_Auction(AuthToken):
     return jsonify(result)
 
 ##########################################################
-## Edit Auction
+## Edit Auction                                      CHECK
 ##########################################################
 
 @app.route("/dbproj/leilao/<AuthToken>/<artigo_ean>", methods=['PUT'])
@@ -180,7 +166,7 @@ def update_auction(AuthToken,artigo_ean):
         rows = cur.fetchall()
         row = rows[0]
         if(row[0] == None):
-            return jsonify('Nao pode alterar um Leilao de outro utilizador') 
+            return jsonify('Erro ao alterar o leilao') 
     except:
         return jsonify('Failed on first try!')
    
@@ -201,18 +187,11 @@ def update_auction(AuthToken,artigo_ean):
                 WHERE artigo_ean = %s"""
 
         values = (content["titulo"], content["description"], artigo_ean)
+        
         try:
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
-
-            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
-            values = (content["titulo"],content["description"],artigo_ean)
-            
-            cur.execute(statement, values)
-            cur.execute("commit")
-            logger.info("Added to editions")
-
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
@@ -239,16 +218,6 @@ def update_auction(AuthToken,artigo_ean):
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
-
-            cur.execute("SELECT description FROM auction where artigo_ean = %s", (artigo_ean,) )
-            rows = cur.fetchall()
-            row = rows[0]
-            
-            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
-            values = (content["titulo"],row,artigo_ean)
-            cur.execute(statement, values)
-            cur.execute("commit")
-            logger.info("Added to editions")
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
@@ -275,17 +244,6 @@ def update_auction(AuthToken,artigo_ean):
             res = cur.execute(statement, values)
             result = f'Updated: {cur.rowcount}'
             cur.execute("commit")
-
-            cur.execute("SELECT titulo FROM auction where artigo_ean = %s", (artigo_ean,) )
-            rows = cur.fetchall()
-            row = rows[0]
-            
-            statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
-            values = (row,content['description'],artigo_ean)
-            cur.execute(statement, values)
-            cur.execute("commit")
-            logger.info("Added to editions")
-
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
             result = 'Failed!'
@@ -295,7 +253,7 @@ def update_auction(AuthToken,artigo_ean):
         return jsonify(result)
 
 ##########################################################
-## Write Message
+## Write Message                                     CHECK
 ########################################################## 
 
 @app.route("/leilao10/<AuthToken>/<artigo_ean>", methods=['PUT'])
@@ -312,7 +270,9 @@ def write_message(AuthToken,artigo_ean):
 
     if "text" not in content:
         return 'message are required to update'
-
+    
+    if content["text"] is None:
+        return 'Empty Message'
 
     logger.info("---- write message  ----")
     logger.info(f'content: {content}')
@@ -335,7 +295,6 @@ def write_message(AuthToken,artigo_ean):
     
 
     try:
-
         res = cur.execute(statement, values)
         result = f'Updated: {cur.rowcount}'
         cur.execute("commit")
@@ -348,7 +307,7 @@ def write_message(AuthToken,artigo_ean):
     return jsonify(result)
 
 ##########################################################
-## Register User
+## Register User                                     CHECK
 ########################################################## 
 
 @app.route("/dbproj/users/", methods=['POST'])
@@ -372,7 +331,7 @@ def register_person():
     try:
         cur.execute(statement, values)
         cur.execute("commit")
-        result = 'Inserted!'
+        result = 'Registered!'
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         result = 'Failed!'
@@ -383,7 +342,7 @@ def register_person():
     return jsonify(result)
 
 ##########################################################
-## Login User
+## Login User                                        CHECK
 ########################################################## 
 
 @app.route("/dbproj/users", methods=['PUT'])
@@ -402,8 +361,6 @@ def login_action():
         return 'username and password are required to update'
 
     
-
-    logger.info("---- update department  ----")
     logger.info(f'content: {content}')
 
     # parameterized queries, good for security and performance
@@ -436,13 +393,12 @@ def login_action():
     return jsonify(result)
 
 ##########################################################
-## Ver todos os leiloes e sua descricao
+## Ver todos os leiloes e sua descricao              CHECK
 ########################################################## 
 
 @app.route("/dbproj/leiloes", methods=['GET'], strict_slashes=True)
 def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
-
     conn = db_connection()
     cur = conn.cursor()
 
@@ -459,9 +415,9 @@ def get_all_auctions():
     conn.close()
     return jsonify(payload)
 
-##########################################################
-## Procura por um leilao com uma descricao ou artigo_ean
-########################################################## 
+################################################################
+## Procura por um leilao com uma descricao ou artigo_ean CHECK
+################################################################
 
 @app.route("/dbproj/leiloes/<description>", methods=['GET'])
 def get_oneAuction(description):
@@ -487,7 +443,7 @@ def get_oneAuction(description):
     return jsonify(rows)
 
 ##########################################################
-## Ver detalhes de um determinado leilao
+## Ver detalhes de um determinado leilao             CHECK
 ########################################################## 
 
 @app.route("/dbproj/leilao/<artigo_ean>", methods=['GET'])
@@ -506,12 +462,7 @@ def get_DetailsAuction(artigo_ean):
         row = rows[0]
         content = {'artigo_ean': int(row[0]), 'min_price': row[1], 'end_date': row[2], 'description': row[3], 'actual_bid_price': row[4], 'titulo': row[5]}
         paypload.append(content)
-        #cur.execute("select users_username, text from message where auction_artigo_ean = %s order by id", (artigo_ean,))
-        #rows = cur.fetchall()
-        #row = row[0]
-        #for row in rows:
-            #content = {'users_username':row[0],'text':row[1] }
-            #paypload.append(content)
+
         cur.execute("CALL details("+artigo_ean+");")
         cur.execute("select bid_price, users_username from temp1;")
         rows = cur.fetchall()
@@ -527,7 +478,6 @@ def get_DetailsAuction(artigo_ean):
         
         cur.execute("drop table temp1, temp2;")
         cur.execute("commit")
-        logger.debug("after commit")
     except(Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         rows = "0 results"
@@ -536,7 +486,7 @@ def get_DetailsAuction(artigo_ean):
     return jsonify(paypload)
 
 ##########################################################
-## Ver notificacoes e elimina depois
+## Ver notificacoes e elimina depois                 CHECK
 ########################################################## 
 
 @app.route("/users2/<AuthToken>", methods=['GET'])
@@ -546,6 +496,7 @@ def get_Notifications(AuthToken):
     cur = conn.cursor()
     payload = []
 
+    #Ver se token esta valido
     try:
         cur.execute("CALL TokenDateValidation();")
         cur.execute("commit")
@@ -556,10 +507,6 @@ def get_Notifications(AuthToken):
         return 'Token inexistente ou Sessao Expirada'
 
     try:
-        cur.execute("select username from users where token_login = %s;",(AuthToken,))
-        rows = cur.fetchall()
-        row = rows[0]
-
         cur.execute("select message_notif,hour from notification where users_username=%s order by hour desc",(row[0],))
         rowsN = cur.fetchall()
         for rown in rowsN:
@@ -568,12 +515,8 @@ def get_Notifications(AuthToken):
             payload.append(content) # appending to the payload to be returned
         
         #Eliminar notificacoes removeNotif
-    
-        logger.info("Before removeNotif")   
-        logger.info("Row[0] antes de remover "+ row[0])
         cur.execute("CALL removeNotif(%s);",(row[0],))
         cur.execute("commit")
-        logger.info("removeNotif Done")
     except(Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         rows = "0 results notifications"
@@ -582,7 +525,7 @@ def get_Notifications(AuthToken):
     return jsonify(payload)
 
 ##########################################################
-## Bid Auction
+## Bid Auction                                       CHECK
 ##########################################################
 
 @app.route("/dbproj/bid/<AuthToken>/<auction_artigo_ean>/<bid_price>", methods=['GET'])
@@ -597,12 +540,12 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
     logger.info("---- update bid  ----")
     logger.info(f'auction_artigo_ean: {auction_artigo_ean}' + f'bid_price: {bid_price} '+ f'AuthToken: {AuthToken}')
 
+    #Ver se token e valido
     try:
         cur.execute("CALL TokenDateValidation();")
         cur.execute("commit")
         cur.execute("select username from users where token_login = %s", (AuthToken,))
-        rows = cur.fetchall()
-        row = rows[0]
+        rowsNew = cur.fetchall()
     except:
         return 'Token inexistente ou Sessao Expirada'
 
@@ -611,7 +554,7 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
         cur.execute("CALL finishAuction();")
         cur.execute("select AuctionEndVerification(%s)",(auction_artigo_ean,))
         rows = cur.fetchall()
-        row=rows[0]
+        row=rows[0]  
         if(row[0]==False):
             return jsonify("Leilao ja terminado")
         cur.execute("select username from users_auction, users where auction_artigo_ean=%s and users.token_login= %s and username=users_auction.users_username;",(auction_artigo_ean,AuthToken,))
@@ -619,33 +562,33 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
             return jsonify("Nao pode fazer licitacoes no seu leilao")
         cur.execute("select bid.bid_price from bid where bid.bid_price >= %s and auction_artigo_ean = %s;",(bid_price,auction_artigo_ean,))
         if(cur.rowcount >= 1):
-            return jsonify("Bid mais baixa que o necessario")  
+            return jsonify("Bid mais baixa que o necessario")
+        cur.execute("select min_price from auction where artigo_ean = %s and min_price<=%s;",(auction_artigo_ean,bid_price,))
+        logger.info
+        if(cur.rowcount == 0):
+            return jsonify("Bid abaixo do minimo")
     except (Exception, psycopg2.DatabaseError) as error:
             logger.error(error)
 
     try:
-        cur.execute("select username from users where token_login = %s", (AuthToken,))
-        rows = cur.fetchall()
-        #result = f'Updated: {cur.rowcount}'
-        if(cur.rowcount == 0):
-            result = f'there is no token'
-        else:
-            #POR AQUI PROCEDURE
-            row = rows[0]
-            logger.info("---- username  ----" +row[0] )
-            statement = """ insert into bid values(%s,%s,%s) """
-            values = (bid_price,auction_artigo_ean,row[0])
-            cur.execute(statement,values)
+      #  cur.execute("select username from users where token_login = %s", (AuthToken,))
+       # rows = cur.fetchall()
+        row = rowsNew[0]
+        logger.info("---- username  ----" +row[0] )
+        statement = """ insert into bid values(%s,%s,%s) """
+        values = (bid_price,auction_artigo_ean,row[0])
+        cur.execute(statement,values)
+        cur.execute("commit")
+        #statement = """update auction set actual_bid_price = %s where artigo_ean = %s"""
+        #values = (bid_price,auction_artigo_ean)
+        #cur.execute(statement,values)
+        #result = f'successfully bid'
+        #cur.execute("commit")
 
-            statement = """update auction set actual_bid_price = %s where artigo_ean = %s"""
-            values = (bid_price,auction_artigo_ean)
-            cur.execute(statement,values)
-            result = f'successfully bid'
-            cur.execute("commit")
-
-            logger.info("BEFORE BIDNOTIFICATION")
-            cur.execute("CALL bidNotification(%s,%s)",(auction_artigo_ean,row[0],))
-            logger.info("Notification Sended")
+        logger.info("BEFORE BIDNOTIFICATION")
+        cur.execute("CALL bidNotification(%s,%s)",(auction_artigo_ean,row[0],))
+        logger.info("Notification Sended")
+        result = f'successfully bid'
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         result = 'Failed!'
@@ -656,7 +599,7 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
     return jsonify(result)
 
 ##########################################################
-## Atualizar leiloes acabados
+## Atualizar leiloes acabados                        CHECK
 ########################################################## 
 
 @app.route("/dbproj/auction/update", methods=['GET'])
@@ -680,7 +623,7 @@ def finish_auction():
     return jsonify(result)
 
 ##########################################################
-## Ver todos os leiloes em que tem atividade
+## Ver todos os leiloes em que tem atividade         CHECK         
 ########################################################## 
 
 @app.route("/dbproj/auction/activity/<AuthToken>", methods=['GET'])
@@ -690,6 +633,7 @@ def activityOfUsers(AuthToken):
     conn = db_connection()
     cur = conn.cursor()
     payload = []
+
     statement =  """ select users_auction.auction_artigo_ean from users_auction where users_username = %s union select bid.auction_artigo_ean from bid where users_username = %s ; """
 
     try:
@@ -702,11 +646,7 @@ def activityOfUsers(AuthToken):
         return 'Token inexistente ou Sessao Expirada'
 
     try:
-        cur.execute("select username from users where token_login = %s ",(AuthToken,))
-        rows = cur.fetchall()
-        row=rows[0]
         values = (row[0],row[0])
-        logger.info
         cur.execute(statement,values)
         rows = cur.fetchall()
         for row in rows:

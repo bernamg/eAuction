@@ -194,12 +194,30 @@ begin
 end;
 $$;
 
+
 create trigger Create_Auction
 	after insert on auction
 	for each row
 		execute procedure func_trig_Create_Auction();
+/***********************************************************************
+**************************************************************************/
 
-/*----------------------------------------------------------------------*/
+create or replace function func_trig_update_on_auction() returns trigger
+language plpgsql
+as $$
+begin
+	update auction set actual_bid_price=new.bid_price where artigo_ean=new.auction_artigo_ean;
+	return new;
+end;
+$$;
+
+
+create trigger Bid_Auction
+	after insert on bid
+	for each row
+		execute procedure func_trig_update_on_auction();
+/*****************************************************************************
+******************************************************************************/
 create or replace function func_trig_Update_Auction() returns trigger
 language plpgsql
 as $$
