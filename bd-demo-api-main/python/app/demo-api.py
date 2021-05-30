@@ -91,12 +91,6 @@ def create_Auction(AuthToken):
         cur.execute(statement, values)
         cur.execute("commit")
 
-        #statement = """ INSERT into edition values( DEFAULT, %s, %s, %s)"""
-        #values = (payload["titulo"],payload["description"],payload["artigo_ean"])
-        #cur.execute(statement, values)
-        #cur.execute("commit")
-        #logger.info("Added to editions")
-
         result = 'leilaoID ' + str(payload["artigo_ean"])
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
@@ -545,6 +539,11 @@ def bid_action(AuthToken,auction_artigo_ean,bid_price):
 
     #Verificacao
     try:
+        cur.execute("select AuctionEndVerification(%s)",(auction_artigo_ean,))
+        rows = cur.fetchall()
+        row=rows[0]
+        if(row[0]==False):
+            return jsonify("Leilao ja terminado")
         cur.execute("select username from users_auction, users where auction_artigo_ean=%s and users.token_login= %s and username=users_auction.users_username;",(auction_artigo_ean,AuthToken,))
         if(cur.rowcount > 0):
             return jsonify("Nao pode fazer licitacoes no seu leilao")
@@ -593,10 +592,8 @@ def finish_auction():
 
     conn = db_connection()
     cur = conn.cursor()
-    statement = """ update auction set stateOfAuction = FALSE where end_date < CURRENT_TIMESTAMP  """
-    
     try:
-        cur.execute(statement)
+        cur.execute("CALL finishAuction();")
         cur.execute("commit")
         result = f'state of auctions updated successfully '
         logger.info("---- finish auctions  ----")

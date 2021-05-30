@@ -63,6 +63,29 @@ ALTER TABLE notification ADD CONSTRAINT notification_fk2 FOREIGN KEY (auction_ar
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk1 FOREIGN KEY (users_username) REFERENCES users(username);
 ALTER TABLE users_auction ADD CONSTRAINT users_auction_fk2 FOREIGN KEY (auction_artigo_ean) REFERENCES auction(artigo_ean);
 
+/*Finish auction*/
+create or replace procedure finishAuction()
+language plpgsql
+as $$
+begin 
+    update auction set stateOfAuction = FALSE where end_date < CURRENT_TIMESTAMP;
+end;
+$$;
+
+create or replace function AuctionEndVerification(rec_artigo_ean BIGINT) returns BOOLEAN
+language plpgsql
+as $$
+declare
+	x BOOLEAN;
+begin
+	select stateOfAuction into x from auction where artigo_ean = (rec_artigo_ean);
+	return(x);
+exception
+	when others then
+		raise exception 'error';
+end;
+$$;
+
 create or replace procedure bidNotification(artigo_ean BIGINT, username VARCHAR)
 language plpgsql
 as $$
