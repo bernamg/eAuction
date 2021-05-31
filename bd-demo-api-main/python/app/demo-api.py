@@ -18,12 +18,25 @@
  
 from flask import Flask, jsonify, request
 import logging, psycopg2, time
-
 import random 
 import string
 import datetime
+import os
 app = Flask(__name__) 
+from passlib.context import CryptContext
 
+pwd_context = CryptContext(
+        schemes=["pbkdf2_sha256"],
+        default="pbkdf2_sha256",
+        pbkdf2_sha256__default_rounds=30000
+)
+
+def encrypt_password(password):
+    return pwd_context.encrypt(password)
+
+
+def check_encrypted_password(password, hashed):
+    return pwd_context.verify(password, hashed)
 
 @app.route('/') 
 def hello(): 
@@ -320,14 +333,14 @@ def register_person():
 
     logger.info("---- new user  ----")
     logger.debug(f'payload: {payload}')
-
+   
     # parameterized queries, good for security and performance
     statement = """
                   INSERT INTO users (username, email, password) 
                           VALUES ( %s,   %s ,   %s )"""
 
-    values = (payload["username"], payload["email"], payload["password"])
-
+    values = (payload["username"], payload["email"],encrypt_password( payload["password"]))
+    
     try:
         cur.execute(statement, values)
         cur.execute("commit")
@@ -364,18 +377,17 @@ def login_action():
     logger.info(f'content: {content}')
 
     # parameterized queries, good for security and performance
-    statement ="""
-                select username, password from users
-                where password= %s and username = %s;"""
-
-
-    values = (content["password"], content["username"])
-
     try:
-        res = cur.execute(statement, values)
-        #result = f'Updated: {cur.rowcount}'
+        res = cur.execute("select username, password from users where username = %s;",(content["username"],))
         if(cur.rowcount == 0):
             result = f'Erro: couldn´t login'
+            return jsonify(result)
+        rows = cur.fetchall()
+        row=rows[0]
+        logger.info("row: "+str(row[1]))
+        
+        if check_encrypted_password(content["password"], row[1])==False:
+            return jsonify("Password Errada")
         else:
             letters = string.ascii_lowercase
             result_str = ''.join(random.choice(letters) for i in range(5))
@@ -383,7 +395,7 @@ def login_action():
             statement = """ update users set token_login = %s, validade = (CURRENT_TIMESTAMP + '2 hour') where username = %s """
             values = (result_str,content["username"])
             cur.execute(statement,values)
-        cur.execute("commit")
+            cur.execute("commit")
     except (Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
         result = 'Failed!'
@@ -401,8 +413,9 @@ def get_all_auctions():
     logger.info("###              DEMO: GET /auctions              ###");   
     conn = db_connection()
     cur = conn.cursor()
-
-    cur.execute("SELECT artigo_ean, description FROM auction")
+    cur.execute("CALL finishAuction();")
+    cur.execute("commit")
+    cur.execute("SELECT artigo_ean, description FROM auction where stateofauction=TRUE")
     rows = cur.fetchall()
 
     payload = []
@@ -427,13 +440,14 @@ def get_oneAuction(description):
 
     conn = db_connection()
     cur = conn.cursor()
-
-    str = "SELECT artigo_ean, description FROM auction where description LIKE '%" + description + "%'"
+    cur.execute("CALL finishAuction();")
+    cur.execute("commit")
+    str = "SELECT artigo_ean, description FROM auction where description LIKE '%" + description + "%' and stateofauction=TRUE"
 
     try:
         cur.execute(str)
         if(cur.rowcount == 0):
-            cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s", (description,) )
+            cur.execute("SELECT artigo_ean, description FROM auction where artigo_ean = %s and stateofauction=TRUE", (description,) )
         rows = cur.fetchall()
     except(Exception, psycopg2.DatabaseError) as error:
         logger.error(error)
@@ -668,11 +682,16 @@ def activityOfUsers(AuthToken):
 ##########################################################
 
 def db_connection():
-    db = psycopg2.connect(user = "aulaspl",
-                            password = "aulaspl",
+    username = os.getenv('dbusername')
+    password = os.getenv('dbpassword')
+    databaseE = os.getenv('dbdatabase')
+    logger.info("username: "+str(username))
+    logger.info("password: "+str(password))
+    db = psycopg2.connect(user = username,
+                            password = password,
                             host = "db",
                             port = "5432",
-                            database = "dbfichas")
+                            database = databaseE)
     return db
 
 

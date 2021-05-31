@@ -15,6 +15,11 @@ run pip install flask
 
 run pip install psycopg2-binary
 
+run pip install passlib
+
+ENV dbusername="aulaspl"
+ENV dbpassword="aulaspl"
+ENV dbdatabase="dbfichas"
 copy . /app
 
 volume ["/app"]
