@@ -15,7 +15,6 @@
 ##   BD 2021 Team - https://dei.uc.pt/lei/
 ##   University of Coimbra
 
- 
 from flask import Flask, jsonify, request
 import logging, psycopg2, time
 import random 
