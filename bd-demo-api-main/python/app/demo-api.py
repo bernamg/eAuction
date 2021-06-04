@@ -22,20 +22,8 @@ import string
 import datetime
 import os
 app = Flask(__name__) 
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(
-        schemes=["pbkdf2_sha256"],
-        default="pbkdf2_sha256",
-        pbkdf2_sha256__default_rounds=30000
-)
-
-def encrypt_password(password):
-    return pwd_context.encrypt(password)
-
-
-def check_encrypted_password(password, hashed):
-    return pwd_context.verify(password, hashed)
+from security import encrypt_password;
+from security import check_encrypted_password;
 
 @app.route('/') 
 def hello(): 
@@ -684,12 +672,13 @@ def db_connection():
     username = os.getenv('dbusername')
     password = os.getenv('dbpassword')
     databaseE = os.getenv('dbdatabase')
-    logger.info("username: "+str(username))
-    logger.info("password: "+str(password))
+    portE = os.getenv('dbport')
+    hostE=os.getenv('dbhost')
+
     db = psycopg2.connect(user = username,
                             password = password,
-                            host = "db",
-                            port = "5432",
+                            host = hostE,
+                            port = portE,
                             database = databaseE)
     return db
 

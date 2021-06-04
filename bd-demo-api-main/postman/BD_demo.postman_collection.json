@@ -1,30 +1,10 @@
 {
 	"info": {
-		"_postman_id": "2c2d276f-59e4-4cb9-9174-f7d584db4296",
+		"_postman_id": "0ad6ee77-48c2-4050-a564-ca4cb05184d0",
 		"name": "BD_demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
-		{
-			"name": "Obtain All Users",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/users/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"users",
-						""
-					]
-				}
-			},
-			"response": []
-		},
 		{
 			"name": "Read messages from an auction",
 			"request": {
@@ -63,26 +43,6 @@
 					"path": [
 						"dbproj",
 						"leiloes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Obtain One Department",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/departments/10",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"departments",
-						"10"
 					]
 				}
 			},
@@ -176,7 +136,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"bernas\",\n    \"password\": \"123\"\n}",
+					"raw": "{\n    \"username\": \"\",\n    \"password\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

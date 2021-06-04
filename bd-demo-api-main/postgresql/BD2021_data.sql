@@ -314,14 +314,3 @@ begin
 end;
 $$;
 
-
-
-INSERT INTO users VALUES('dvm18','dvm@student.uc','123');
-INSERT INTO users VALUES('bernas','bernas@student.uc','123');
-INSERT INTO auction VALUES(1234567890123,5.10,'2021-05-05','PlayStation 4 como nova com um comandos e o pes',5.10,'leilao do dvm',TRUE);
-INSERT INTO auction VALUES(1234567890124,5.10,'2021-05-05','PlayStation 4 como nova com dois comandos e o fifa21',5.10,'leilao do berna',TRUE);
-INSERT INTO users_auction VALUES('dvm18',1234567890123);
-INSERT INTO users_auction VALUES('bernas',1234567890124);
-insert into message values('ola',DEFAULT,'dvm18',1234567890124);
-insert into message values('ola tudo bem',DEFAULT,'bernas',1234567890124);
-insert into message values('sempre a puxar croquetes',DEFAULT,'dvm18',1234567890124);

@@ -1,1 +1,0 @@
-print("bernas pico")

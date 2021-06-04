@@ -20,6 +20,9 @@ run pip install passlib
 ENV dbusername="aulaspl"
 ENV dbpassword="aulaspl"
 ENV dbdatabase="dbfichas"
+ENV dbport="5432"
+ENV dbhost="db"
+
 copy . /app
 
 volume ["/app"]
@@ -30,4 +33,4 @@ run mkdir -p logs
 
 EXPOSE 5000
 
-CMD ["python", "demo-api.py"]
+CMD ["python", "demo-api.py","security.py"]
